@@ -27,6 +27,8 @@ Page({
     reconnectCount: 0, // 重连次数
     maxReconnectCount: 3, // 最大重连次数
     keyboardHeight: 0, // 键盘高度
+    conversationId: '', // 会话ID
+    postId: '', // 发布ID
   },
 
   /**
@@ -134,52 +136,124 @@ Page({
    * 加载消息列表
    */
   loadMessages() {
-    if (this.data.loading || !this.data.hasMore) return;
-    
     this.setData({ loading: true });
     
-    // 模拟加载数据
-    setTimeout(() => {
-      const newMessages = this.getMockMessages();
-      
-      this.setData({
-        messageList: this.data.page === 1 ? newMessages : [...newMessages, ...this.data.messageList],
-        loading: false,
-        hasMore: this.data.page < 3,
-        page: this.data.page + 1
-      });
-    }, 1000);
-  },
-
-  /**
-   * 获取模拟消息数据
-   */
-  getMockMessages() {
-    const messages = [];
-    const contents = [
-      '你好，请问有什么可以帮到你？',
-      '我想了解一下这个捎带的详情',
-      '好的，我可以帮你带过去',
-      '请问什么时候可以送达？',
-      '谢谢，已经收到了'
-    ];
+    // 构造请求参数
+    const params = {
+      page: this.data.page,
+      pageSize: this.data.pageSize
+    };
     
-    for (let i = 0; i < this.data.pageSize; i++) {
-      const contentIndex = Math.floor(Math.random() * contents.length);
-      const isSelf = Math.random() > 0.5;
-      const now = new Date();
-      const time = `${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
-      
-      messages.push({
-        id: `msg_${this.data.page}_${i}`,
-        type: 'text',
-        content: contents[contentIndex],
-        time: time,
-        isSelf: isSelf
-      });
+    // 如果已有会话ID，则使用该会话ID
+    if (this.data.conversationId) {
+      params.conversationId = this.data.conversationId;
+    } 
+    // 否则使用目标用户ID
+    else if (this.data.targetId) {
+      params.targetUserId = this.data.targetId;
+      params.postType = this.data.postType;
+      params.postId = this.data.postId;
+    } else {
+      console.error('加载消息失败：缺少conversationId或targetId');
+      this.setData({ loading: false });
+      return;
     }
     
-    return messages;
+    // 调用云函数获取消息
+    wx.cloud.callFunction({
+      name: 'getMessages',
+      data: params,
+      success: res => {
+        console.log('获取消息成功:', res);
+        
+        if (res.result && res.result.success) {
+          const { messages, hasMore, conversationId } = res.result.data;
+          
+          // 如果没有conversationId，保存从云函数返回的conversationId
+          if (!this.data.conversationId && conversationId) {
+            this.setData({ conversationId });
+          }
+          
+          // 处理消息数据
+          const formattedMessages = this.formatMessages(messages);
+          
+          this.setData({
+            messageList: this.data.page === 1 ? formattedMessages : [...formattedMessages, ...this.data.messageList],
+            loading: false,
+            hasMore: hasMore
+          });
+          
+          // 如果是第一页，滚动到底部
+          if (this.data.page === 1) {
+            this.scrollToBottom();
+          }
+        } else {
+          console.error('获取消息失败:', res);
+          this.setData({ loading: false });
+          
+          // 使用模拟数据
+          if (this.data.page === 1 && this.data.messageList.length === 0) {
+            this.loadMockMessages();
+          }
+        }
+      },
+      fail: err => {
+        console.error('调用云函数获取消息失败:', err);
+        this.setData({ loading: false });
+        
+        // 使用模拟数据
+        if (this.data.page === 1 && this.data.messageList.length === 0) {
+          this.loadMockMessages();
+        }
+      }
+    });
+  },
+  
+  // 格式化消息数据
+  formatMessages(messages) {
+    if (!messages || !Array.isArray(messages)) return [];
+    
+    const formattedMessages = [];
+    let lastTime = 0;
+    
+    messages.forEach((msg, index) => {
+      const time = new Date(msg.time).getTime();
+      const showTime = index === 0 || time - lastTime > 5 * 60 * 1000; // 5分钟内不显示时间
+      
+      if (showTime) {
+        lastTime = time;
+      }
+      
+      formattedMessages.push({
+        id: msg.id,
+        content: msg.content,
+        type: msg.type || 'text',
+        sender: msg.sender,
+        time: new Date(msg.time),
+        showTime: showTime,
+        status: msg.status || 'sent',
+        metadata: msg.metadata || {}
+      });
+    });
+    
+    return formattedMessages;
+  },
+  
+  // 加载模拟消息数据
+  loadMockMessages() {
+    console.log('使用模拟数据');
+    const mockMessages = this.getMockMessages();
+    
+    this.setData({
+      messageList: this.data.page === 1 ? mockMessages : [...mockMessages, ...this.data.messageList],
+      loading: false,
+      hasMore: this.data.page < 3 // 模拟只有3页数据
+    });
+    
+    // 如果是第一页，滚动到底部
+    if (this.data.page === 1) {
+      this.scrollToBottom();
+    }
   },
 
   /**
@@ -234,102 +308,119 @@ Page({
    * 发送消息
    */
   sendMessage() {
-    if (!this.data.inputMessage.trim()) return;
+    const content = this.data.inputMessage.trim();
+    if (!content) return;
     
-    if (!this.data.wsConnected) {
-      wx.showToast({
-        title: '网络连接失败，请重试',
-        icon: 'none'
-      });
-      return;
-    }
-    
-    const now = new Date();
-    const time = `${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
-    
-    const message = {
-      id: `msg_${Date.now()}`,
-      type: 'text',
-      content: this.filterMessage(this.data.inputMessage),
-      time: time,
-      isSelf: true,
-      status: 'sending'
-    };
-    
-    // 添加到消息列表
+    // 清空输入框
     this.setData({
-      messageList: [...this.data.messageList, message],
       inputMessage: '',
-      scrollToMessage: `msg-${message.id}`,
       showFunctionPanel: false
     });
     
-    // 发送消息
-    this.webSocket.send({
-      data: JSON.stringify(message),
-      success: () => {
-        // 更新消息状态为已发送
-        const messages = this.data.messageList.map(item => {
-          if (item.id === message.id) {
-            return { ...item, status: 'sent' };
-          }
-          return item;
-        });
-        this.setData({ messageList: messages });
-      },
-      fail: () => {
-        // 更新消息状态为发送失败
-        const messages = this.data.messageList.map(item => {
-          if (item.id === message.id) {
-            return { ...item, status: 'failed' };
-          }
-          return item;
-        });
-        this.setData({ messageList: messages });
+    // 生成临时消息ID
+    const tempId = 'temp_' + Date.now();
+    const currentTime = new Date();
+    
+    // 添加消息到列表
+    const newMessage = {
+      id: tempId,
+      content: content,
+      type: 'text',
+      sender: this.data.userInfo._openid || 'self',
+      time: currentTime,
+      showTime: this.shouldShowTime(currentTime),
+      status: 'sending'
+    };
+    
+    this.addMessageToList(newMessage);
+    
+    // 构造请求参数
+    const params = {
+      receiverId: this.data.targetId,
+      content: content,
+      messageType: 'text'
+    };
+    
+    // 如果已有会话ID，则使用该会话ID
+    if (this.data.conversationId) {
+      params.conversationId = this.data.conversationId;
+    }
+    
+    // 添加发布类型和ID（如果有）
+    if (this.data.postType) {
+      params.postType = this.data.postType;
+    }
+    
+    if (this.data.postId) {
+      params.postId = this.data.postId;
+    }
+    
+    // 调用云函数发送消息
+    wx.cloud.callFunction({
+      name: 'sendMessage',
+      data: params,
+      success: res => {
+        console.log('发送消息成功:', res);
         
-        wx.showToast({
-          title: '发送失败，请重试',
-          icon: 'none'
-        });
+        if (res.result && res.result.success) {
+          // 如果没有conversationId，保存从云函数返回的conversationId
+          if (!this.data.conversationId && res.result.data.conversationId) {
+            this.setData({
+              conversationId: res.result.data.conversationId
+            });
+          }
+          
+          // 更新消息状态
+          this.updateMessageStatus(tempId, 'sent', res.result.data.messageId);
+        } else {
+          console.error('发送消息失败:', res);
+          this.updateMessageStatus(tempId, 'failed');
+        }
+      },
+      fail: err => {
+        console.error('调用云函数发送消息失败:', err);
+        this.updateMessageStatus(tempId, 'failed');
       }
     });
-  },
-
-  /**
-   * 过滤消息内容
-   */
-  filterMessage(content) {
-    // 过滤敏感词
-    const sensitiveWords = ['敏感词1', '敏感词2'];
-    let filteredContent = content;
     
-    sensitiveWords.forEach(word => {
-      const reg = new RegExp(word, 'g');
-      filteredContent = filteredContent.replace(reg, '*'.repeat(word.length));
-    });
-    
-    return filteredContent;
+    // 模拟收到回复
+    setTimeout(() => {
+      this.simulateReply();
+    }, 1000);
   },
-
-  /**
-   * 加载更多消息
-   */
-  loadMoreMessages() {
-    this.loadMessages();
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-    this.setData({
-      messageList: [],
-      page: 1,
-      hasMore: true
-    });
+  
+  // 更新消息状态
+  updateMessageStatus(tempId, status, newId = null) {
+    const { messageList } = this.data;
+    const index = messageList.findIndex(msg => msg.id === tempId);
     
-    this.loadMessages();
-    wx.stopPullDownRefresh();
+    if (index !== -1) {
+      const updatedMessages = [...messageList];
+      updatedMessages[index].status = status;
+      
+      if (newId) {
+        updatedMessages[index].id = newId;
+      }
+      
+      this.setData({
+        messageList: updatedMessages
+      });
+    }
+  },
+  
+  // 判断是否应该显示时间
+  shouldShowTime(currentTime) {
+    const { messageList } = this.data;
+    
+    if (messageList.length === 0) {
+      return true;
+    }
+    
+    const lastMessage = messageList[messageList.length - 1];
+    const lastTime = lastMessage.time instanceof Date ? lastMessage.time : new Date(lastMessage.time);
+    
+    // 如果当前消息和上一条消息的时间间隔超过5分钟，则显示时间
+    return currentTime - lastTime > 5 * 60 * 1000;
   },
 
   /**

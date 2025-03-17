@@ -1,0 +1,138 @@
+<view class="chat-container">
+  <!-- 消息列表 -->
+  <scroll-view 
+    class="message-list" 
+    scroll-y="true" 
+    bindscrolltoupper="onScrollToUpper"
+    scroll-into-view="{{scrollToMessage ? 'msg-' + scrollToMessage : ''}}"
+    enhanced="true"
+    show-scrollbar="false"
+    style="padding-bottom: {{keyboardHeight > 0 ? keyboardHeight : 0}}px">
+    
+    <!-- 加载更多提示 -->
+    <view class="loading-more" wx:if="{{loadingMore}}">
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+    
+    <!-- 没有更多消息 -->
+    <view class="no-more" wx:if="{{!hasMore && messages.length > 0 && !loadingMore}}">
+      没有更多消息了
+    </view>
+    
+    <!-- 消息内容 -->
+    <view class="messages-wrapper">
+      <view 
+        wx:for="{{messages}}" 
+        wx:key="_id"
+        id="msg-{{item._id}}"
+        class="message-item {{item.sender === userInfo._id ? 'self' : 'other'}}">
+        
+        <!-- 头像 -->
+        <view class="avatar">
+          <image 
+            src="{{item.sender === userInfo._id ? userInfo.avatarUrl : targetUser.avatarUrl}}" 
+            mode="aspectFill"
+          ></image>
+        </view>
+        
+        <!-- 消息气泡 -->
+        <view class="message-content">
+          <!-- 文本消息 -->
+          <view 
+            wx:if="{{item.type === 'text'}}" 
+            class="message-bubble {{item.isFailed ? 'failed' : ''}}"
+            bindtap="{{item.isFailed ? 'onRetryTap' : ''}}"
+            data-id="{{item._id}}">
+            {{item.content}}
+            
+            <!-- 发送失败图标 -->
+            <view wx:if="{{item.isFailed}}" class="failed-icon">!</view>
+            
+            <!-- 发送中图标 -->
+            <view wx:if="{{item.isPending}}" class="pending-icon"></view>
+          </view>
+          
+          <!-- 图片消息 -->
+          <view wx:elif="{{item.type === 'image'}}" class="message-image">
+            <image 
+              src="{{item.content}}" 
+              mode="widthFix" 
+              bindtap="previewImage" 
+              data-src="{{item.content}}"
+            ></image>
+            
+            <!-- 发送失败图标 -->
+            <view wx:if="{{item.isFailed}}" class="failed-icon">!</view>
+            
+            <!-- 发送中图标 -->
+            <view wx:if="{{item.isPending}}" class="pending-icon"></view>
+          </view>
+          
+          <!-- 位置消息 -->
+          <view wx:elif="{{item.type === 'location'}}" class="message-location">
+            <view class="location-title">位置信息</view>
+            <view class="location-address">{{item.metadata.address}}</view>
+            <map
+              class="location-map"
+              latitude="{{item.metadata.latitude}}"
+              longitude="{{item.metadata.longitude}}"
+              markers="{{[{latitude: item.metadata.latitude, longitude: item.metadata.longitude}]}}"
+              scale="16"
+            ></map>
+            
+            <!-- 发送失败图标 -->
+            <view wx:if="{{item.isFailed}}" class="failed-icon">!</view>
+            
+            <!-- 发送中图标 -->
+            <view wx:if="{{item.isPending}}" class="pending-icon"></view>
+          </view>
+          
+          <!-- 其他类型消息 -->
+          <view wx:else class="message-bubble">
+            未知消息类型
+          </view>
+          
+          <!-- 消息时间 -->
+          <view class="message-time">
+            {{item.createdAt}}
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 加载中 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+    
+    <!-- 无消息提示 -->
+    <view class="empty-messages" wx:if="{{!loading && messages.length === 0}}">
+      <view class="empty-icon">💬</view>
+      <view class="empty-text">暂无消息，发送一条消息开始聊天吧</view>
+    </view>
+  </scroll-view>
+
+  <!-- 输入框 -->
+  <view class="input-container">
+    <input 
+      class="message-input" 
+      type="text" 
+      value="{{inputContent}}"
+      placeholder="输入消息..." 
+      cursor-spacing="10"
+      bindinput="onInputChange"
+      confirm-type="send"
+      bindconfirm="onSendTap"
+    />
+    <button 
+      class="send-button {{inputContent ? 'active' : ''}}" 
+      bindtap="onSendTap"
+      disabled="{{!inputContent}}">
+      发送
+    </button>
+  </view>
+</view> 

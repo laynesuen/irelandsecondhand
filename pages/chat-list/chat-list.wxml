@@ -1,56 +1,59 @@
 <!-- pages/chat-list/chat-list.wxml -->
-<view class="chat-list-container">
+<view class="container">
   <!-- 搜索框 -->
-  <view class="search-bar">
-    <view class="search-input-wrapper">
-      <icon class="search-icon" type="search" size="16" color="#8c9aa8"></icon>
-      <input class="search-input" placeholder="搜索聊天" bindinput="onSearchInput" value="{{searchKeyword}}"/>
+  <view class="search-box">
+    <view class="search-input-box">
+      <image class="search-icon" src="/images/icons/search.png"></image>
+      <input class="search-input" type="text" placeholder="搜索" bindinput="onSearchInput" confirm-type="search" value="{{searchKeyword}}"/>
+      <view class="search-clear" wx:if="{{searchKeyword}}" bindtap="clearSearch">×</view>
     </view>
   </view>
   
   <!-- 聊天列表 -->
-  <view class="chat-list">
+  <scroll-view class="chat-list-container" scroll-y enable-back-to-top bindscrolltolower="loadMore">
+    <!-- 聊天列表 -->
+    <view class="chat-list" wx:if="{{chatList.length > 0}}">
+      <view wx:for="{{chatList}}" wx:key="id" class="chat-item" bindtap="onChatTap" 
+        data-user-id="{{item.userId}}" 
+        data-user-name="{{item.userName}}" 
+        data-post-type="{{item.postType}}"
+        data-post-id="{{item.postId}}"
+        data-id="{{item.id}}">
+        <!-- 头像 -->
+        <view class="chat-avatar-container">
+          <image class="chat-avatar" src="{{item.avatar || '/images/default-avatar.png'}}"></image>
+        </view>
+        
+        <!-- 消息内容 -->
+        <view class="chat-content">
+          <view class="chat-header">
+            <text class="chat-name">{{item.userName}}</text>
+            <text class="chat-time">{{item.displayTime}}</text>
+          </view>
+          
+          <view class="chat-message-box">
+            <text class="chat-message">{{item.lastMessage}}</text>
+            <view class="chat-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
     <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{chatList.length === 0 && !loading}}">
-      <image class="empty-icon" src="/images/default-avatar.png"></image>
+    <view class="empty-state" wx:if="{{isEmpty}}">
+      <image class="empty-icon" src="/images/icons/no-message.png"></image>
       <text class="empty-text">暂无聊天记录</text>
-    </view>
-    
-    <!-- 加载中 -->
-    <view class="loading" wx:if="{{loading}}">
-      <text>加载中...</text>
-    </view>
-    
-    <!-- 聊天项 -->
-    <view class="chat-item" 
-          wx:for="{{chatList}}" 
-          wx:key="id" 
-          bindtap="onChatTap" 
-          data-user-id="{{item.userId}}"
-          data-user-name="{{item.userName}}"
-          data-post-type="{{item.postType}}">
-      <view class="chat-avatar">
-        <image src="{{item.avatar}}" mode="aspectFill"></image>
-        <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">
-          <text>{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</text>
-        </view>
-      </view>
-      
-      <view class="chat-content">
-        <view class="chat-header">
-          <text class="chat-name">{{item.userName}}</text>
-          <text class="chat-time">{{item.time}}</text>
-        </view>
-        <view class="chat-message">{{item.lastMessage}}</view>
-      </view>
+      <button class="empty-button" bindtap="goToExplore">去浏览行程</button>
     </view>
     
     <!-- 加载更多 -->
-    <view class="loading-more" wx:if="{{hasMore && !loading}}" bindtap="loadMore">
-      <text>加载更多</text>
+    <view class="loading-more" wx:if="{{loading && chatList.length > 0}}">
+      <text>加载中...</text>
     </view>
-    <view class="no-more" wx:if="{{!hasMore && chatList.length > 0}}">
-      <text>没有更多聊天了</text>
+    
+    <!-- 没有更多数据 -->
+    <view class="no-more" wx:if="{{!hasMore && !loading && chatList.length > 0}}">
+      <text>没有更多数据了</text>
     </view>
-  </view>
+  </scroll-view>
 </view>

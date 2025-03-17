@@ -1,0 +1,61 @@
+<view class="messages-container">
+  <!-- 未登录提示 -->
+  <view class="not-login-container" wx:if="{{!isLoggedIn}}">
+    <image class="not-login-icon" src="/images/message.png" mode="aspectFit"></image>
+    <view class="not-login-text">登录后查看您的消息</view>
+    <navigator url="/pages/profile/profile" class="login-btn">去登录</navigator>
+  </view>
+
+  <!-- 已登录内容 -->
+  <block wx:else>
+    <!-- 加载中 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+
+    <!-- 会话列表 -->
+    <view class="conversation-list" wx:if="{{!loading && conversations.length > 0}}">
+      <view 
+        wx:for="{{conversations}}" 
+        wx:key="_id"
+        class="conversation-item"
+        bindtap="navigateToChat"
+        data-id="{{item._id}}"
+        data-targetid="{{item.targetUser._id}}">
+        
+        <!-- 用户头像 -->
+        <view class="avatar-container">
+          <image class="avatar" src="{{item.targetUser.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <!-- 未读消息数 -->
+          <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</view>
+        </view>
+        
+        <!-- 会话内容 -->
+        <view class="conversation-content">
+          <view class="conversation-header">
+            <view class="nickname">{{item.targetUser.nickName || '未知用户'}}</view>
+            <view class="time">{{item.lastMessageTime}}</view>
+          </view>
+          <view class="last-message">{{item.lastMessage || '暂无消息'}}</view>
+        </view>
+        
+        <!-- 删除按钮 -->
+        <view 
+          class="delete-btn"
+          catchtap="onDeleteConversation"
+          data-id="{{item._id}}">
+          删除
+        </view>
+      </view>
+    </view>
+
+    <!-- 空会话列表 -->
+    <view class="empty-conversations" wx:if="{{!loading && conversations.length === 0}}">
+      <image class="empty-icon" src="/images/empty-message.png" mode="aspectFit"></image>
+      <view class="empty-text">暂无消息</view>
+      <view class="empty-tip">发布行程或交流需求，开始聊天吧</view>
+    </view>
+  </block>
+</view> 

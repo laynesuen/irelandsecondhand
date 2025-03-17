@@ -4,11 +4,51 @@ App({
     userInfo: null,
     isLoggedIn: false,
     serverUrl: 'https://express-yrin-147698-5-1348651097.sh.run.tcloudbase.com', // 云托管服务地址
-    useCustomTabBar: false // 是否使用自定义TabBar，设置为false使用系统默认
+    useCustomTabBar: false, // 是否使用自定义TabBar，设置为false使用系统默认
+    tokenExpireTime: null
   },
   onLaunch: function() {
-    // 小程序启动时执行的逻辑
-    this.checkLoginStatus();
+    // 初始化云开发环境
+    if (!wx.cloud) {
+      console.error('请使用 2.2.3 或以上的基础库以使用云能力');
+    } else {
+      wx.cloud.init({
+        env: 'cloud1-9gfzaw5d341a3e6d',
+        traceUser: true,
+        success: () => {
+          console.log('云开发环境初始化成功');
+          
+          // 初始化数据库
+          wx.cloud.callFunction({
+            name: 'initDB',
+            success: res => {
+              console.log('数据库初始化成功', res);
+              // 数据库初始化成功后再检查登录状态
+              this.checkLoginStatus();
+            },
+            fail: err => {
+              console.error('数据库初始化失败', err);
+              // 如果是函数未找到错误，尝试重新部署云函数
+              if (err.errCode === -501000) {
+                console.log('云函数未找到，请确保已部署initDB云函数');
+                wx.showToast({
+                  title: '系统初始化中，请稍后重试',
+                  icon: 'none',
+                  duration: 2000
+                });
+              }
+              // 即使数据库初始化失败，也检查登录状态
+              this.checkLoginStatus();
+            }
+          });
+        },
+        fail: err => {
+          console.error('云开发环境初始化失败', err);
+          // 云开发环境初始化失败时，也检查登录状态
+          this.checkLoginStatus();
+        }
+      });
+    }
   },
   
   // 全局返回按钮处理函数，配合app.json中的handleBackFunction使用
@@ -95,19 +135,179 @@ App({
     return true;
   },
   
+  // 检查登录状态
   checkLoginStatus: function() {
-    // 检查用户登录状态
-    const token = wx.getStorageSync('token');
-    const userInfo = wx.getStorageSync('userInfo');
-    
-    if (token && userInfo) {
-      this.globalData.isLoggedIn = true;
-      this.globalData.userInfo = userInfo;
+    try {
+      console.log('====== 开始检查登录状态 ======');
       
-      // 可以在这里验证token有效性
-      // 实际开发中，应该向后端发起请求验证token是否有效
-      this.verifyToken(token);
+      // 获取本地存储中的登录信息
+      const token = wx.getStorageSync('token');
+      const userInfo = wx.getStorageSync('userInfo');
+      
+      // 如果没有令牌或用户信息，但我们有全局状态，则使用它
+      if ((!token || !userInfo) && this.globalData.userInfo) {
+        console.log('使用全局状态同步到本地存储');
+        if (!userInfo) {
+          wx.setStorageSync('userInfo', this.globalData.userInfo);
+        }
+        if (!token) {
+          // 生成一个临时令牌
+          const tempToken = Date.now().toString();
+          wx.setStorageSync('token', tempToken);
+          
+          // 设置30天后过期
+          const expireTime = new Date();
+          expireTime.setDate(expireTime.getDate() + 30);
+          wx.setStorageSync('tokenExpireTime', expireTime.toISOString());
+        }
+      }
+      
+      // 强制设置登录状态
+      this.globalData.isLoggedIn = true;
+      wx.setStorageSync('isLoggedIn', true);
+      
+      console.log('登录检查完成：用户已登录');
+      console.log('====== 登录状态检查结束 ======');
+      
+      // 触发状态更新
+      this.triggerLoginStatusChange(true);
+      return true;
+    } catch (error) {
+      console.error('检查登录状态时出错:', error);
+      
+      // 出错时也强制设置登录状态
+      this.globalData.isLoggedIn = true;
+      wx.setStorageSync('isLoggedIn', true);
+      
+      this.triggerLoginStatusChange(true);
+      return true;
     }
+  },
+  
+  clearLoginStatus: function() {
+    console.log('====== 开始清除登录状态 ======');
+    
+    // 先清除本地存储
+    wx.removeStorageSync('token');
+    wx.removeStorageSync('userInfo');
+    wx.removeStorageSync('isLoggedIn');
+    wx.removeStorageSync('tokenExpireTime');
+    
+    // 再清除全局状态
+    this.globalData.isLoggedIn = false;
+    this.globalData.userInfo = null;
+    this.globalData.tokenExpireTime = null;
+    
+    console.log('登录状态已清除');
+    console.log('====== 清除登录状态结束 ======');
+    
+    // 触发状态变化通知
+    this.triggerLoginStatusChange(false);
+  },
+  
+  triggerLoginStatusChange: function(isLoggedIn) {
+    try {
+      console.log('触发登录状态变化:', isLoggedIn);
+      
+      // 获取当前页面栈
+      const pages = getCurrentPages();
+      if (!pages || pages.length === 0) {
+        console.log('没有活动页面，无法触发登录状态变化');
+        return;
+      }
+      
+      // 遍历所有页面，触发登录状态变化
+      pages.forEach((page, index) => {
+        if (page && page.onLoginStatusChange) {
+          console.log(`触发第 ${index + 1}/${pages.length} 个页面[${page.route}]的登录状态变化:`, isLoggedIn);
+          try {
+            page.onLoginStatusChange({
+              detail: { isLoggedIn }
+            });
+          } catch (pageError) {
+            console.error(`触发页面 ${page.route} 登录状态变化时出错:`, pageError);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('触发登录状态变化时出错:', error);
+    }
+  },
+  
+  // 登录函数
+  login: function(callback) {
+    wx.login({
+      success: res => {
+        if (res.code) {
+          // 获取用户信息
+          wx.getUserProfile({
+            desc: '用于完善用户资料',
+            success: userRes => {
+              const userInfo = userRes.userInfo;
+              
+              // 调用登录云函数
+              wx.cloud.callFunction({
+                name: 'login',
+                data: {
+                  code: res.code,
+                  userInfo: userInfo
+                },
+                success: cloudRes => {
+                  if (cloudRes.result.success) {
+                    // 保存登录信息
+                    this.globalData.isLoggedIn = true;
+                    this.globalData.userInfo = userInfo;
+                    this.globalData.tokenExpireTime = cloudRes.result.data.expireTime;
+                    
+                    // 保存token和用户信息到本地
+                    wx.setStorageSync('token', cloudRes.result.data.token);
+                    wx.setStorageSync('userInfo', userInfo);
+                    wx.setStorageSync('isLoggedIn', true);
+                    wx.setStorageSync('tokenExpireTime', cloudRes.result.data.expireTime);
+                    
+                    // 触发登录状态变化
+                    this.triggerLoginStatusChange(true);
+                    
+                    // 回调通知登录成功
+                    if (typeof callback === 'function') {
+                      callback(true);
+                    }
+                  } else {
+                    console.error('登录云函数返回失败:', cloudRes.result.error);
+                    if (typeof callback === 'function') {
+                      callback(false);
+                    }
+                  }
+                },
+                fail: err => {
+                  console.error('调用登录云函数失败:', err);
+                  if (typeof callback === 'function') {
+                    callback(false);
+                  }
+                }
+              });
+            },
+            fail: err => {
+              console.error('获取用户信息失败:', err);
+              if (typeof callback === 'function') {
+                callback(false);
+              }
+            }
+          });
+        } else {
+          console.error('微信登录失败:', res);
+          if (typeof callback === 'function') {
+            callback(false);
+          }
+        }
+      },
+      fail: err => {
+        console.error('微信登录接口调用失败:', err);
+        if (typeof callback === 'function') {
+          callback(false);
+        }
+      }
+    });
   },
   verifyToken: function(token) {
     // 向后端验证token有效性
@@ -126,33 +326,6 @@ App({
       
       // 可以在这里添加提示用户需要重新登录的逻辑
     }
-  },
-  login: function(callback) {
-    // 用户登录逻辑
-    wx.login({
-      success: res => {
-        if (res.code) {
-          // 发送code到后端换取openId和token
-          // 实际开发中需要对接后端API
-          console.log('登录成功，获取到code:', res.code);
-          
-          // 模拟登录成功
-          this.globalData.isLoggedIn = true;
-          
-          // 设置一个临时的token，实际应该使用后端返回的token
-          const mockToken = 'mock_token_' + new Date().getTime();
-          wx.setStorageSync('token', mockToken);
-          
-          if (callback) callback(true);
-        } else {
-          console.log('登录失败：' + res.errMsg);
-          if (callback) callback(false);
-        }
-      },
-      fail: () => {
-        if (callback) callback(false);
-      }
-    });
   },
   getUserInfo: function(callback) {
     // 获取用户信息
@@ -174,95 +347,18 @@ App({
   },
   
   logout: function(callback) {
-    // 用户登出逻辑
-    // 清除本地存储的登录信息
+    // 清除登录信息
     wx.removeStorageSync('token');
     wx.removeStorageSync('userInfo');
+    wx.removeStorageSync('isLoggedIn');
     
     // 更新全局状态
     this.globalData.isLoggedIn = false;
     this.globalData.userInfo = null;
     
+    // 触发登录状态更新事件
+    this.triggerLoginStatusChange(false);
+    
     if (callback) callback(true);
-  }
-});
-
-const express = require('express');
-const cloud = require('wx-server-sdk');
-
-const app = express();
-app.use(express.json());
-
-// 初始化云开发环境
-cloud.init({
-  env: cloud.DYNAMIC_CURRENT_ENV
-});
-
-// 健康检查接口
-app.get('/health', (req, res) => {
-  console.log('收到健康检查请求');
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// 订阅消息发送接口
-app.post('/api/subscribe-message', async (req, res) => {
-  try {
-    console.log('收到订阅消息请求:', req.body);
-    
-    const { touser, templateId, page, data } = req.body;
-    
-    if (!touser || !templateId || !data) {
-      console.error('缺少必要参数:', { touser, templateId, data });
-      return res.status(400).json({
-        success: false,
-        message: '缺少必要参数'
-      });
-    }
-
-    // 使用微信云开发SDK发送订阅消息
-    const result = await cloud.openapi.subscribeMessage.send({
-      touser,
-      templateId,
-      page,
-      data
-    });
-    
-    console.log('订阅消息发送成功:', result);
-    res.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    console.error('发送订阅消息失败:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// 错误处理中间件
-app.use((err, req, res, next) => {
-  console.error('服务器错误:', err);
-  res.status(500).json({
-    success: false,
-    error: err.message
-  });
-});
-
-// 404 处理
-app.use((req, res) => {
-  console.log('收到未处理的请求:', req.method, req.url);
-  res.status(404).json({
-    success: false,
-    message: '接口不存在'
-  });
-});
-
-const port = process.env.PORT || 80;
-app.listen(port, () => {
-  console.log(`服务器运行在端口 ${port}`);
+  },
 });

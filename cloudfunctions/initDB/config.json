@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "openapi": [],
+    "database": {
+      "users": {
+        "read": "doc._openid == auth.openid",
+        "write": "doc._openid == auth.openid",
+        "admin": false
+      },
+      "carries": {
+        "read": true,
+        "write": "doc.creatorId == auth.openid",
+        "admin": false
+      },
+      "orders": {
+        "read": "doc.userId == auth.openid || doc.carryId in get('carries').where({creatorId: auth.openid}).get()",
+        "write": "doc.userId == auth.openid",
+        "admin": false
+      },
+      "messages": {
+        "read": "doc.receiverId == auth.openid",
+        "write": "doc.receiverId == auth.openid",
+        "admin": false
+      }
+    }
+  }
+} 

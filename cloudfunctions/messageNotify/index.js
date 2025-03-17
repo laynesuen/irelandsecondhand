@@ -29,34 +29,153 @@ console.log('数据库连接初始化完成');
 
 // 云函数入口函数
 exports.main = async (event, context) => {
-  console.log('收到请求:', event);
-  
+  const { 
+    receiver,    // 接收者ID
+    sender,      // 发送者ID
+    messageType, // 消息类型
+    conversationId // 会话ID
+  } = event
+
   try {
-    const { action } = event;
+    // 参数校验
+    if (!receiver || !sender || !conversationId) {
+      return {
+        code: 400,
+        message: '参数错误',
+        data: null
+      }
+    }
+
+    // 获取接收者信息，查看其消息通知设置
+    const receiverRes = await db.collection('users').doc(receiver).get()
+    if (!receiverRes.data) {
+      return {
+        code: 404,
+        message: '接收者不存在',
+        data: null
+      }
+    }
+
+    const receiverSettings = receiverRes.data.settings || {}
     
-    switch (action) {
-      case 'sendSystemNotification':
-        return await handleSystemNotification(event);
-      case 'sendOrderStatusNotification':
-        return await handleOrderStatusNotification(event);
-      case 'sendSecurityNotification':
-        return await handleSecurityNotification(event);
-      case 'sendActivityNotification':
-        return await handleActivityNotification(event);
-      default:
-        return {
-          success: false,
-          message: '未知的通知类型'
-        };
+    // 检查用户是否开启了消息通知
+    if (receiverSettings.enableNotification === false) {
+      return {
+        code: 200,
+        message: '用户已关闭通知',
+        data: null
+      }
+    }
+
+    // 获取发送者信息
+    const senderRes = await db.collection('users').doc(sender).get()
+    if (!senderRes.data) {
+      return {
+        code: 404,
+        message: '发送者不存在',
+        data: null
+      }
+    }
+
+    const senderInfo = senderRes.data
+    const senderName = senderInfo.nickName || '用户'
+
+    // 获取会话信息
+    const convRes = await db.collection('conversations').doc(conversationId).get()
+    if (!convRes.data) {
+      return {
+        code: 404,
+        message: '会话不存在',
+        data: null
+      }
+    }
+
+    // 构建通知内容
+    let title = `新消息提醒`
+    let content = `${senderName}发来一条${typeToText(messageType)}消息`
+    
+    // 如果是关联行程的会话，可以添加相关信息
+    if (convRes.data.postId && convRes.data.postType) {
+      const postType = convRes.data.postType === 'trip' ? '行程' : '需求'
+      content += `(关于${postType})`
+    }
+
+    // 构建跳转路径
+    const path = `/pages/chat/chat?conversationId=${conversationId}&targetId=${sender}`
+
+    // 调用微信的订阅消息推送（需要用户已订阅相关模板）
+    // 注意：这里需要提前在微信公众平台申请订阅消息模板
+    try {
+      const wxContext = cloud.getWXContext()
+      const result = await cloud.openapi.subscribeMessage.send({
+        touser: receiver,
+        page: path,
+        lang: 'zh_CN',
+        data: {
+          // 以下字段需要根据你申请的模板进行修改
+          thing1: {
+            value: senderName
+          },
+          thing2: {
+            value: typeToText(messageType)
+          },
+          time3: {
+            value: new Date().toLocaleString()
+          },
+          thing4: {
+            value: '点击查看详情'
+          }
+        },
+        templateId: 'YOUR_TEMPLATE_ID' // 替换为你的模板ID
+      })
+      
+      console.log('发送订阅消息成功', result)
+    } catch (err) {
+      // 订阅消息发送失败，可能是用户未订阅或其他原因
+      console.error('发送订阅消息失败', err)
+      
+      // 可以考虑使用其他通知方式，如云开发数据库记录通知等
+      // 这里我们将通知保存到数据库中
+      await db.collection('notifications').add({
+        data: {
+          receiver,
+          sender,
+          title,
+          content,
+          path,
+          isRead: false,
+          createTime: db.serverDate(),
+          type: 'message'
+        }
+      })
+    }
+
+    return {
+      code: 200,
+      message: '通知发送成功',
+      data: null
     }
   } catch (error) {
-    console.error('执行错误:', error);
+    console.error('发送通知失败', error)
     return {
-      success: false,
-      message: error.message
-    };
+      code: 500,
+      message: '服务器错误',
+      error: error.message,
+      data: null
+    }
   }
-};
+}
+
+// 辅助函数：消息类型转文字
+function typeToText(type) {
+  const typeMap = {
+    'text': '文本',
+    'image': '图片',
+    'location': '位置',
+    'order': '订单'
+  }
+  return typeMap[type] || '消息'
+}
 
 /**
  * 发送订阅消息

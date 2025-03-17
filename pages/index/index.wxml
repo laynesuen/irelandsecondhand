@@ -1,0 +1,162 @@
+<!-- pages/index/index.wxml -->
+<view class="index-container">
+  <!-- 搜索区域 -->
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索目的地、物品类型" bindinput="onSearchInput" value="{{searchKeyword}}" confirm-type="search" bindconfirm="onSearchConfirm"/>
+    <view class="search-icon-wrapper" bindtap="onSearchTap">
+      <icon class="search-icon" type="search" size="18" color="#666"></icon>
+    </view>
+  </view>
+  
+  <!-- 轮播图区域 -->
+  <swiper class="banner-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="3000" duration="500" circular="{{true}}" indicator-color="rgba(255,255,255,0.4)" indicator-active-color="#ffffff">
+    <swiper-item wx:for="{{bannerList}}" wx:key="index">
+      <image src="{{item.imageUrl}}" class="banner-image" mode="aspectFill" bindtap="onBannerTap" data-index="{{index}}"></image>
+    </swiper-item>
+  </swiper>
+  
+  <!-- 标签页切换 -->
+  <view class="tabs">
+    <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">行程信息</view>
+    <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">捎带需求</view>
+  </view>
+  
+  <!-- 捎带需求列表 -->
+  <view wx:if="{{activeTab === 0}}" class="list-container">
+    <view class="empty-state" wx:if="{{needsList.length === 0 && !loading}}">
+      <image class="empty-icon" src="/images/default-avatar.png"></image>
+      <text class="empty-text">暂无捎带需求信息</text>
+      <button class="refresh-btn" bindtap="onRefreshTap">刷新试试</button>
+    </view>
+    <view class="list-item" wx:for="{{needsList}}" wx:key="id" bindtap="onItemTap" data-id="{{item.id}}">
+      <view class="item-header">
+        <view class="route">
+          <view class="location-wrapper from-wrapper">
+            <text class="location from">{{item.fromLocation}}</text>
+          </view>
+          <view class="route-line">
+            <view class="route-line-bg"></view>
+            <view class="route-dot start"></view>
+            <view class="route-status needs">
+              <text class="status-text">待接单</text>
+            </view>
+            <view class="route-dot end"></view>
+          </view>
+          <view class="location-wrapper to-wrapper">
+            <text class="location to">{{item.toLocation}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="item-info">
+        <view class="info-row">
+          <text class="label">报酬</text>
+          <view class="value reward-value">{{item.reward}}</view>
+        </view>
+        <view class="info-row">
+          <text class="label">物品</text>
+          <view class="value item-type-container">
+            <text wx:for="{{item.itemType}}" wx:key="*this" wx:for-item="typeItem" class="item-type">{{typeItem}}</text>
+          </view>
+        </view>
+        <view class="info-row">
+          <text class="label">重量</text>
+          <view class="value">{{item.weight}}</view>
+        </view>
+        <view class="info-row">
+          <text class="label">尺寸</text>
+          <view class="value">{{item.size}}</view>
+        </view>
+        <view class="info-row">
+          <text class="label">期望时间</text>
+          <view class="value time-value">{{item.expectedTime}}</view>
+        </view>
+      </view>
+      <view class="item-footer">
+        <view class="publisher">
+          <image class="avatar" src="{{item.publisher.avatar}}"></image>
+          <text class="name">{{item.publisher.name}}</text>
+          <text class="rating">{{item.publisher.rating}}分</text>
+        </view>
+        <text class="publish-time">{{item.publishTime || '刚刚发布'}}</text>
+      </view>
+    </view>
+    <!-- 加载更多 -->
+    <view class="loading" wx:if="{{loading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && !loading && needsList.length > 0}}">
+      <text class="no-more-text">没有更多数据了</text>
+      <view class="divider"></view>
+    </view>
+  </view>
+  
+  <!-- 行程信息列表 -->
+  <view wx:if="{{activeTab == 1}}" class="list-container">
+    <view class="empty-state" wx:if="{{tripsList.length === 0 && !loading}}">
+      <image class="empty-icon" src="/images/default-avatar.png"></image>
+      <text class="empty-text">暂无行程信息</text>
+      <button class="refresh-btn" bindtap="onRefreshTap">刷新试试</button>
+    </view>
+    <view class="list-item" wx:for="{{tripsList}}" wx:key="id" bindtap="onItemTap" data-id="{{item.id}}">
+      <view class="item-header">
+        <view class="route">
+          <view class="location-wrapper from-wrapper">
+            <text class="location from">{{item.fromLocation}}</text>
+          </view>
+          <view class="route-line">
+            <view class="route-line-bg"></view>
+            <view class="route-dot start"></view>
+            <view class="route-status">
+              <text class="status-text">{{item.flightNumber || '航班号'}}</text>
+            </view>
+            <view class="route-dot end"></view>
+          </view>
+          <view class="location-wrapper to-wrapper">
+            <text class="location to">{{item.toLocation}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="item-info">
+        <view class="info-row">
+          <text class="label">出发时间</text>
+          <view class="value time-value">{{item.departureTime}}</view>
+        </view>
+        <view class="info-row">
+          <text class="label">捎带价格</text>
+          <view class="value reward-value">{{item.rewardRequirement}}</view>
+        </view>
+        <view class="info-row">
+          <text class="label">可携带重量</text>
+          <view class="value">{{item.availableWeight}}</view>
+        </view>
+        <view class="info-row">
+          <text class="label">可接受物品</text>
+          <view class="value acceptable-items">
+            <text wx:for="{{item.acceptableItems}}" wx:key="*this" class="item-tag">{{item}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="item-footer">
+        <view class="publisher">
+          <image class="avatar" src="{{item.traveler.avatar}}"></image>
+          <text class="name">{{item.traveler.name}}</text>
+          <text class="rating">{{item.traveler.rating}}分</text>
+        </view>
+        <text class="publish-time">{{item.publishTime || '刚刚发布'}}</text>
+      </view>
+    </view>
+    <!-- 加载更多 -->
+    <view class="loading" wx:if="{{loading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && !loading && tripsList.length > 0}}">
+      <text class="no-more-text">没有更多数据了</text>
+      <view class="divider"></view>
+    </view>
+  </view>
+
+  <!-- 添加测试按钮 -->
+  <button bindtap="testCloudFunction" type="primary">测试云函数</button>
+</view>

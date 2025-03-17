@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "openapi": [
+      "cloudPay.unifiedOrder",
+      "cloudPay.queryOrder",
+      "cloudPay.closeOrder",
+      "cloudPay.refund",
+      "cloudPay.queryRefund",
+      "subscribeMessage.send"
+    ]
+  },
+  "env": {
+    "MCH_ID": "你的商户号",
+    "API_KEY": "你的API密钥",
+    "TEMPLATE_ID": "你的订阅消息模板ID",
+    "EXCHANGE_API_KEY": "你的汇率API密钥",
+    "EXPRESS_API_KEY": "你的快递100 API密钥"
+  }
+} 

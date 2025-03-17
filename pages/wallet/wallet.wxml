@@ -1,0 +1,110 @@
+<!-- pages/wallet/wallet.wxml -->
+<view class="wallet-container">
+  <!-- 钱包头部区域 -->
+  <view class="wallet-header">
+    <view class="balance-section">
+      <view class="balance-title">钱包余额(元)</view>
+      <view class="balance-amount">{{balance}}</view>
+      <view class="balance-actions">
+        <button class="action-btn recharge-btn" bindtap="showRecharge">充值</button>
+        <button class="action-btn withdraw-btn" bindtap="showWithdraw">提现</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 交易记录区域 -->
+  <view class="transactions-section">
+    <view class="tab-header">
+      <view class="tab {{activeTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-type="all">全部</view>
+      <view class="tab {{activeTab === 'recharge' ? 'active' : ''}}" bindtap="switchTab" data-type="recharge">充值</view>
+      <view class="tab {{activeTab === 'withdraw' ? 'active' : ''}}" bindtap="switchTab" data-type="withdraw">提现</view>
+      <view class="tab {{activeTab === 'income' ? 'active' : ''}}" bindtap="switchTab" data-type="income">收入</view>
+      <view class="tab {{activeTab === 'expense' ? 'active' : ''}}" bindtap="switchTab" data-type="expense">支出</view>
+    </view>
+
+    <view class="transaction-list">
+      <block wx:if="{{transactions.length > 0}}">
+        <view class="transaction-item" wx:for="{{transactions}}" wx:key="id" bindtap="viewTransactionDetail" data-id="{{item.id}}">
+          <view class="transaction-left">
+            <view class="transaction-type">{{item.typeText}}</view>
+            <view class="transaction-date">{{item.date}} {{item.time}}</view>
+          </view>
+          <view class="transaction-right">
+            <view class="transaction-amount {{item.amount.indexOf('-') === 0 ? 'negative' : 'positive'}}">{{item.amount}}</view>
+            <view class="transaction-status">{{item.statusText}}</view>
+          </view>
+        </view>
+      </block>
+      <view class="empty-tip" wx:else>
+        <text>暂无交易记录</text>
+      </view>
+    </view>
+
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && transactions.length > 0}}">
+      <text>没有更多记录了</text>
+    </view>
+  </view>
+
+  <!-- 充值弹窗 -->
+  <view class="modal-mask" wx:if="{{showRechargeModal}}" bindtap="closeRechargeModal"></view>
+  <view class="modal-dialog" wx:if="{{showRechargeModal}}">
+    <view class="modal-header">
+      <text class="modal-title">充值金额</text>
+      <view class="modal-close" bindtap="closeRechargeModal">×</view>
+    </view>
+    <view class="modal-content">
+      <view class="input-group">
+        <text class="input-label">¥</text>
+        <input class="amount-input" type="digit" value="{{rechargeAmount}}" bindinput="inputRechargeAmount" placeholder="请输入充值金额" focus="{{showRechargeModal}}" />
+      </view>
+      <view class="quick-amount-list">
+        <view class="quick-amount-item {{rechargeAmount == item ? 'selected' : ''}}" 
+              wx:for="{{rechargeOptions}}" 
+              wx:key="*this" 
+              bindtap="selectRechargeAmount" 
+              data-amount="{{item}}">
+          ¥{{item}}
+        </view>
+      </view>
+      <button class="confirm-btn" bindtap="confirmRecharge">确认充值</button>
+    </view>
+  </view>
+
+  <!-- 提现弹窗 -->
+  <view class="modal-mask" wx:if="{{showWithdrawModal}}" bindtap="closeWithdrawModal"></view>
+  <view class="modal-dialog" wx:if="{{showWithdrawModal}}">
+    <view class="modal-header">
+      <text class="modal-title">提现金额</text>
+      <view class="modal-close" bindtap="closeWithdrawModal">×</view>
+    </view>
+    <view class="modal-content">
+      <view class="input-group">
+        <text class="input-label">¥</text>
+        <input class="amount-input" type="digit" value="{{withdrawAmount}}" bindinput="inputWithdrawAmount" placeholder="请输入提现金额" focus="{{showWithdrawModal}}" />
+      </view>
+      <view class="quick-amount-list">
+        <view class="quick-amount-item {{withdrawAmount == item ? 'selected' : ''}}" 
+              wx:for="{{withdrawOptions}}" 
+              wx:key="*this" 
+              bindtap="selectWithdrawAmount" 
+              data-amount="{{item}}">
+          ¥{{item}}
+        </view>
+      </view>
+      <view class="fee-info" wx:if="{{withdrawAmount > 0}}">
+        <view class="fee-item">
+          <text class="fee-label">手续费(1%，最低1元)：</text>
+          <text class="fee-value">¥{{withdrawFee}}</text>
+        </view>
+        <view class="fee-item">
+          <text class="fee-label">实际到账：</text>
+          <text class="fee-value">¥{{actualWithdrawAmount}}</text>
+        </view>
+      </view>
+      <button class="confirm-btn" bindtap="confirmWithdraw">确认提现</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,283 @@
+// pages/profile/profile.js
+Page({
+  data: {
+    userInfo: null,
+    isLoggedIn: false,
+    unreadMessageCount: 0,
+    pendingCount: 0,
+    recommendItems: [],
+    menuList: [
+      { id: 1, text: '我的订单', url: '/pages/order/order?type=my' },
+      { id: 2, text: '我的发布', url: '/pages/publish/publish?type=my' },
+      { id: 3, text: '我的消息', url: '/pages/order/order' },
+      { id: 4, text: '实名认证', url: '/pages/verification/verification' },
+      { id: 5, text: '联系客服', url: '/pages/customer-service/customer-service' },
+      { id: 6, text: '设置', url: '/pages/settings/settings' }
+    ]
+  },
+  onLoad: function() {
+    this.checkLoginStatus();
+    // 初始化推荐内容
+    this.getRecommendItems();
+  },
+  onShow: function() {
+    this.checkLoginStatus();
+    // 获取未读消息数量
+    this.getUnreadMessageCount();
+    // 获取待处理订单数量
+    this.getPendingOrderCount();
+    
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 3
+      });
+    }
+  },
+  checkLoginStatus: function() {
+    const app = getApp();
+    const isLoggedIn = app.globalData.isLoggedIn;
+    const userInfo = app.globalData.userInfo;
+
+    // 如果已登录，补充用户数据
+    if (isLoggedIn && userInfo) {
+      // 在实际应用中，这些数据应该从服务器获取
+      userInfo.completedOrders = userInfo.completedOrders || 12;
+      userInfo.rating = userInfo.rating || '4.9';
+      userInfo.followers = userInfo.followers || 5;
+    }
+
+    this.setData({
+      isLoggedIn: isLoggedIn,
+      userInfo: userInfo
+    });
+  },
+  onLoginTap: function() {
+    wx.getUserProfile({
+      desc: '用于完善用户资料',
+      success: (res) => {
+        const app = getApp();
+        // 保存用户信息
+        const userInfo = res.userInfo;
+        // 添加额外的用户数据
+        userInfo.completedOrders = 12;
+        userInfo.rating = '4.9';
+        userInfo.followers = 5;
+        
+        app.globalData.userInfo = userInfo;
+        app.globalData.isLoggedIn = true;
+        
+        this.setData({
+          isLoggedIn: true,
+          userInfo: userInfo
+        });
+
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success'
+        });
+        
+        // 登录后获取推荐内容
+        this.getRecommendItems();
+      },
+      fail: () => {
+        wx.showToast({
+          title: '登录失败',
+          icon: 'error'
+        });
+      }
+    });
+  },
+  onLogoutTap: function() {
+    wx.showModal({
+      title: '提示',
+      content: '确定要退出登录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          const app = getApp();
+          app.globalData.isLoggedIn = false;
+          app.globalData.userInfo = null;
+          
+          this.setData({
+            isLoggedIn: false,
+            userInfo: null,
+            recommendItems: []
+          });
+
+          wx.showToast({
+            title: '已退出登录',
+            icon: 'success'
+          });
+        }
+      }
+    });
+  },
+  // 获取未读消息数量
+  getUnreadMessageCount: function() {
+    // 模拟获取未读消息数量
+    // 实际应用中应该从服务器获取
+    if (this.data.isLoggedIn) {
+      this.setData({
+        unreadMessageCount: Math.floor(Math.random() * 10)
+      });
+    }
+  },
+  // 获取待处理订单数量
+  getPendingOrderCount: function() {
+    // 模拟获取待处理订单数量
+    // 实际应用中应该从服务器获取
+    if (this.data.isLoggedIn) {
+      this.setData({
+        pendingCount: Math.floor(Math.random() * 5)
+      });
+    }
+  },
+  // 获取推荐内容
+  getRecommendItems: function() {
+    // 模拟获取推荐内容
+    // 实际应用中应该从服务器获取
+    if (this.data.isLoggedIn) {
+      const mockItems = [
+        {
+          id: 1,
+          type: 'need',
+          title: '北京到上海的快递代寄',
+          reward: '¥50',
+          imageUrl: '/images/banner1.png'
+        },
+        {
+          id: 2,
+          type: 'trip',
+          title: '上海到广州的行程可捎带小件物品',
+          reward: '¥30-80',
+          imageUrl: '/images/banner2.png'
+        },
+        {
+          id: 3,
+          type: 'need',
+          title: '广州到深圳的文件快速送达',
+          reward: '¥40',
+          imageUrl: '/images/banner3.png'
+        },
+        {
+          id: 4,
+          type: 'trip',
+          title: '成都到重庆的行程可捎带',
+          reward: '¥35-60',
+          imageUrl: '/images/banner1.png'
+        }
+      ];
+      
+      this.setData({
+        recommendItems: mockItems
+      });
+    }
+  },
+  navigateToMyNeeds: function() {
+    if (!this.data.isLoggedIn) {
+      this.showLoginTip();
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/orders/orders?type=needs'
+    });
+  },
+  navigateToMyTrips: function() {
+    if (!this.data.isLoggedIn) {
+      this.showLoginTip();
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/orders/orders?type=trips'
+    });
+  },
+  navigateToMessages: function() {
+    if (!this.data.isLoggedIn) {
+      this.showLoginTip();
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/chat-list/chat-list'
+    });
+  },
+  navigateToFavorites: function() {
+    if (!this.data.isLoggedIn) {
+      this.showLoginTip();
+      return;
+    }
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none'
+    });
+  },
+  navigateToOrders: function(e) {
+    if (!this.data.isLoggedIn) {
+      this.showLoginTip();
+      return;
+    }
+    const status = e.currentTarget.dataset.status;
+    wx.navigateTo({
+      url: `/pages/orders/orders?status=${status}`
+    });
+  },
+  navigateToSettings: function() {
+    if (!this.data.isLoggedIn) {
+      this.showLoginTip();
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/security/security'
+    });
+  },
+  navigateToSecurity: function() {
+    if (!this.data.isLoggedIn) {
+      this.showLoginTip();
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/security/security'
+    });
+  },
+  navigateToPrivacy: function() {
+    wx.navigateTo({
+      url: '/pages/privacy/privacy'
+    });
+  },
+  navigateToDetail: function(e) {
+    const id = e.currentTarget.dataset.id;
+    const type = e.currentTarget.dataset.type;
+    wx.navigateTo({
+      url: `/pages/detail/detail?id=${id}&type=${type}`
+    });
+  },
+  contactCustomerService: function() {
+    wx.showModal({
+      title: '联系客服',
+      content: '客服电话：400-123-4567\n工作时间：9:00-18:00',
+      showCancel: false
+    });
+  },
+  showFeedback: function() {
+    wx.showToast({
+      title: '功能开发中',
+      icon: 'none'
+    });
+  },
+  showAbout: function() {
+    wx.showModal({
+      title: '关于我们',
+      content: '这是一个帮助同学互助捎带物品的平台，让出行更有意义。',
+      showCancel: false
+    });
+  },
+  showLoginTip: function() {
+    wx.showModal({
+      title: '提示',
+      content: '请先登录后再使用该功能',
+      success: (res) => {
+        if (res.confirm) {
+          this.onLoginTap();
+        }
+      }
+    });
+  }
+})

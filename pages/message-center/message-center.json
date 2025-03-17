@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "系统通知",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f8f9fa",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {},
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black"
+} 

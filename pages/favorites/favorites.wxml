@@ -1,0 +1,101 @@
+<!-- pages/favorites/favorites.wxml -->
+<view class="favorites-container">
+  <!-- 标签切换区域 -->
+  <view class="tab-container">
+    <view class="tabs">
+      <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+        <text class="tab-text">行程信息</text>
+      </view>
+      <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+        <text class="tab-text">捎带需求</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content-wrapper">
+    <!-- 收藏的行程信息 -->
+    <view class="favorite-list" hidden="{{activeTab !== 0}}">
+      <block wx:if="{{tripItems.length > 0}}">
+        <view class="item-card" wx:for="{{tripItems}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}" data-type="trip">
+          <view class="item-header">
+            <view class="route">
+              <text class="location-name from">{{item.fromLocation}}</text>
+              <text class="arrow">→</text>
+              <text class="location-name to">{{item.toLocation}}</text>
+            </view>
+            <text class="time">{{item.departureTime}}</text>
+          </view>
+          <view class="item-info">
+            <view class="info-row">
+              <text class="label">可携带重量：</text>
+              <text class="value">{{item.availableWeight}}kg</text>
+            </view>
+            <view class="info-row">
+              <text class="label">接受物品：</text>
+              <text class="value acceptable-items">{{item.acceptableItems}}</text>
+            </view>
+          </view>
+          <view class="item-footer">
+            <view class="publisher">
+              <image class="publisher-avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+              <text class="publisher-name">{{item.nickName}}</text>
+            </view>
+            <view class="actions">
+              <view class="action-btn unfavorite" catch:tap="unfavorite" data-id="{{item.id}}" data-type="trip">
+                <image class="action-icon" src="/images/heart-filled.png"></image>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="empty-state" wx:else>
+        <image class="empty-icon" src="/images/empty-favorites.png" mode="aspectFit"></image>
+        <text class="empty-text">您还没有收藏行程信息</text>
+        <view class="action-btn explore" bindtap="navigateToExplore">去浏览</view>
+      </view>
+    </view>
+
+    <!-- 收藏的捎带需求 -->
+    <view class="favorite-list" hidden="{{activeTab !== 1}}">
+      <block wx:if="{{needItems.length > 0}}">
+        <view class="item-card" wx:for="{{needItems}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}" data-type="need">
+          <view class="item-header">
+            <view class="route">
+              <text class="location-name from">{{item.fromLocation}}</text>
+              <text class="arrow">→</text>
+              <text class="location-name to">{{item.toLocation}}</text>
+            </view>
+            <text class="reward">{{item.reward}}</text>
+          </view>
+          <view class="item-info">
+            <view class="info-row">
+              <text class="label">期望时间：</text>
+              <text class="value time-value">{{item.expectedTime}}</text>
+            </view>
+            <view class="info-row">
+              <text class="label">物品类型：</text>
+              <text class="value item-type">{{item.itemType}}</text>
+            </view>
+          </view>
+          <view class="item-footer">
+            <view class="publisher">
+              <image class="publisher-avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+              <text class="publisher-name">{{item.nickName}}</text>
+            </view>
+            <view class="actions">
+              <view class="action-btn unfavorite" catch:tap="unfavorite" data-id="{{item.id}}" data-type="need">
+                <image class="action-icon" src="/images/heart-filled.png"></image>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="empty-state" wx:else>
+        <image class="empty-icon" src="/images/empty-favorites.png" mode="aspectFit"></image>
+        <text class="empty-text">您还没有收藏捎带需求</text>
+        <view class="action-btn explore" bindtap="navigateToExplore">去浏览</view>
+      </view>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,260 @@
+/* pages/chat-list/chat-list.wxss */
+.chat-list-container {
+  padding: 30rpx 30rpx calc(30rpx + env(safe-area-inset-bottom));
+  background-color: #f8f9fd;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 搜索框 */
+.search-bar {
+  margin-bottom: 30rpx;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 10rpx 0;
+  background-color: #f8f9fd;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 40rpx;
+  padding: 0 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  border: 2rpx solid #f0f0f0;
+  transition: all 0.3s;
+}
+
+.search-input-wrapper:focus-within {
+  box-shadow: 0 4rpx 20rpx rgba(60, 197, 31, 0.1);
+  border-color: rgba(60, 197, 31, 0.3);
+}
+
+.search-icon {
+  flex-shrink: 0;
+  margin-right: 10rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 68rpx;
+  font-size: 26rpx;
+  color: #333;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+/* 聊天列表 */
+.chat-list {
+  padding-bottom: 40rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  margin-top: 60rpx;
+}
+
+.empty-icon {
+  width: 180rpx;
+  height: 180rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #8c9aa8;
+  margin-bottom: 40rpx;
+}
+
+/* 加载中 */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200rpx;
+  color: #8c9aa8;
+  font-size: 26rpx;
+  position: relative;
+}
+
+.loading::before {
+  content: "";
+  display: inline-block;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+  border: 4rpx solid #e0e0e0;
+  border-top: 4rpx solid #3cc51f;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 聊天项 */
+.chat-item {
+  display: flex;
+  padding: 24rpx;
+  background-color: white;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6rpx;
+  height: 100%;
+  background: linear-gradient(to bottom, #3cc51f, #2db7f5);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.chat-item:active {
+  transform: scale(0.98);
+  background-color: #f9f9fc;
+}
+
+.chat-item:active::before {
+  opacity: 1;
+}
+
+/* 头像 */
+.chat-avatar {
+  position: relative;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.chat-avatar image {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  border: 2rpx solid #f0f0f0;
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 未读消息徽章 */
+.unread-badge {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  min-width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  text-align: center;
+  background: linear-gradient(135deg, #ff5100, #ff9700);
+  color: white;
+  font-size: 22rpx;
+  border-radius: 18rpx;
+  padding: 0 8rpx;
+  box-shadow: 0 4rpx 8rpx rgba(255, 81, 0, 0.2);
+  font-weight: bold;
+  z-index: 1;
+}
+
+/* 聊天内容 */
+.chat-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.chat-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400rpx;
+}
+
+.chat-time {
+  font-size: 22rpx;
+  color: #8c9aa8;
+}
+
+.chat-message {
+  font-size: 26rpx;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  max-width: 520rpx;
+}
+
+/* 加载更多 */
+.loading-more {
+  text-align: center;
+  padding: 30rpx 0;
+  color: #3cc51f;
+  font-size: 26rpx;
+  position: relative;
+}
+
+.loading-more::after {
+  content: "";
+  display: inline-block;
+  width: 30rpx;
+  height: 30rpx;
+  margin-left: 10rpx;
+  border: 3rpx solid #e0e0e0;
+  border-top: 3rpx solid #3cc51f;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+.no-more {
+  text-align: center;
+  padding: 30rpx 0;
+  color: #8c9aa8;
+  font-size: 26rpx;
+}
+
+.no-more::before,
+.no-more::after {
+  content: "";
+  display: inline-block;
+  width: 100rpx;
+  height: 2rpx;
+  background: #e0e0e0;
+  margin: 0 20rpx;
+  vertical-align: middle;
+}
+
+/* 地名样式 */
+.location-name {
+  color: #000;
+  font-weight: 500;
+}

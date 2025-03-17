@@ -1,0 +1,89 @@
+<!-- pages/my-trips/my-trips.wxml -->
+<view class="my-trips-container">
+  <!-- 搜索框 -->
+  <view class="search-box">
+    <view class="search-bar">
+      <icon type="search" size="16" color="#4caf50"></icon>
+      <input class="search-input" placeholder="搜索我的行程" bindinput="onSearchInput" confirm-type="search" bindconfirm="onSearchConfirm" value="{{searchKeyword}}"></input>
+      <view class="search-btn" bindtap="onSearchConfirm" wx:if="{{searchKeyword}}">搜索</view>
+    </view>
+  </view>
+
+  <!-- 行程列表 -->
+  <scroll-view scroll-y class="trips-list" bindscrolltolower="onLoadMore" enable-back-to-top>
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{trips.length === 0 && !loading}}">
+      <image class="empty-icon" src="/images/empty-state.png" mode="aspectFit"></image>
+      <text class="empty-text">暂无发布的行程</text>
+      <button class="action-btn publish-btn" bindtap="goToPublish">发布行程</button>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 行程列表内容 -->
+    <view class="trip-item-container" wx:for="{{trips}}" wx:key="id">
+      <view class="trip-item">
+        <view class="trip-info">
+          <!-- 行程路线显示 -->
+          <view class="trip-route">
+            <view class="location-wrapper from-wrapper">
+              <text class="location from" catchtap="showLocationTip" data-location="{{item.fromLocation}}" data-type="from">{{item.fromLocation}}</text>
+            </view>
+            <view class="route-line">
+              <view class="route-line-bg"></view>
+              <view class="route-dot start"></view>
+              <view class="route-status">
+                <text class="status-text">{{item.flightNumber || '航班号'}}</text>
+              </view>
+              <view class="status-container">
+                <text class="status-badge" style="color: {{item.statusColor}}">{{item.statusText}}</text>
+              </view>
+              <view class="route-dot end"></view>
+            </view>
+            <view class="location-wrapper to-wrapper">
+              <text class="location to" catchtap="showLocationTip" data-location="{{item.toLocation}}" data-type="to">{{item.toLocation}}</text>
+            </view>
+          </view>
+          
+          <view class="trip-detail">
+            <view class="detail-row">
+              <text class="detail-label">出发时间：</text>
+              <text class="detail-value time">{{item.departureTime}}</text>
+            </view>
+            <view class="detail-row">
+              <text class="detail-label">捎带价格：</text>
+              <text class="detail-value price">€{{item.rewardRequirement}}</text>
+            </view>
+            <view class="detail-row">
+              <text class="detail-label">可携带重量：</text>
+              <text class="detail-value">{{item.availableWeight}}</text>
+            </view>
+            <view class="detail-row">
+              <text class="detail-label">可接受物品：</text>
+              <view class="detail-value item-tags">
+                <text wx:for="{{item.acceptableItems}}" wx:key="*this" wx:for-item="itemTag" class="item-tag">{{itemTag}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <view class="trip-actions">
+          <button class="action-btn edit-btn" catchtap="editTrip" data-id="{{item.id}}">修改</button>
+          <button class="action-btn cancel-btn" catchtap="cancelTrip" data-id="{{item.id}}">取消发布</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore && !loading && trips.length > 0}}">
+      <text class="load-more-text" bindtap="onLoadMore">加载更多</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && trips.length > 0}}">
+      <text class="no-more-text">没有更多了</text>
+    </view>
+  </scroll-view>
+</view> 

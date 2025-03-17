@@ -1,0 +1,173 @@
+// pages/security/security.js
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+    notificationEnabled: true,
+    locationEnabled: true,
+    version: '1.0.0'
+  },
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad(options) {
+    // 从本地存储获取设置状态
+    const notificationEnabled = wx.getStorageSync('notificationEnabled');
+    const locationEnabled = wx.getStorageSync('locationEnabled');
+    
+    this.setData({
+      notificationEnabled: notificationEnabled === '' ? true : notificationEnabled,
+      locationEnabled: locationEnabled === '' ? true : locationEnabled
+    });
+  },
+
+  /**
+   * 跳转到隐私政策页面
+   */
+  navigateToPrivacy() {
+    wx.navigateTo({
+      url: '/pages/privacy/privacy'
+    });
+  },
+
+  /**
+   * 清除缓存
+   */
+  clearCache() {
+    wx.showModal({
+      title: '提示',
+      content: '确定要清除所有缓存吗？',
+      success: (res) => {
+        if (res.confirm) {
+          // 清除除了登录信息外的所有缓存
+          const token = wx.getStorageSync('token');
+          const userInfo = wx.getStorageSync('userInfo');
+          
+          wx.clearStorageSync();
+          
+          // 保留登录信息
+          if (token) wx.setStorageSync('token', token);
+          if (userInfo) wx.setStorageSync('userInfo', userInfo);
+          
+          wx.showToast({
+            title: '缓存已清除',
+            icon: 'success'
+          });
+        }
+      }
+    });
+  },
+
+  /**
+   * 切换消息通知状态
+   */
+  onNotificationChange(e) {
+    const enabled = e.detail.value;
+    this.setData({
+      notificationEnabled: enabled
+    });
+    wx.setStorageSync('notificationEnabled', enabled);
+    
+    wx.showToast({
+      title: enabled ? '已开启消息通知' : '已关闭消息通知',
+      icon: 'none'
+    });
+  },
+
+  /**
+   * 切换位置服务状态
+   */
+  onLocationChange(e) {
+    const enabled = e.detail.value;
+    this.setData({
+      locationEnabled: enabled
+    });
+    wx.setStorageSync('locationEnabled', enabled);
+    
+    if (enabled) {
+      // 如果开启位置服务，请求位置权限
+      wx.getLocation({
+        type: 'gcj02',
+        success: () => {
+          wx.showToast({
+            title: '已开启位置服务',
+            icon: 'none'
+          });
+        },
+        fail: () => {
+          this.setData({
+            locationEnabled: false
+          });
+          wx.setStorageSync('locationEnabled', false);
+          wx.showToast({
+            title: '位置权限获取失败',
+            icon: 'none'
+          });
+        }
+      });
+    } else {
+      wx.showToast({
+        title: '已关闭位置服务',
+        icon: 'none'
+      });
+    }
+  },
+
+  /**
+   * 显示关于我们
+   */
+  showAboutUs() {
+    wx.showModal({
+      title: '关于我们',
+      content: '这是一个帮助同学互助捎带物品的平台，让出行更有意义。\n\n版本: ' + this.data.version,
+      showCancel: false
+    });
+  },
+
+  /**
+   * 联系客服
+   */
+  contactCustomerService() {
+    wx.showModal({
+      title: '联系客服',
+      content: '客服电话: 400-123-4567\n工作时间: 周一至周五 9:00-18:00',
+      showCancel: false
+    });
+  },
+
+  /**
+   * 检查更新
+   */
+  checkUpdate() {
+    wx.showLoading({
+      title: '检查更新中...'
+    });
+    
+    // 模拟检查更新
+    setTimeout(() => {
+      wx.hideLoading();
+      wx.showModal({
+        title: '检查结果',
+        content: '当前已是最新版本',
+        showCancel: false
+      });
+    }, 1500);
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom() {
+
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage() {
+
+  }
+})

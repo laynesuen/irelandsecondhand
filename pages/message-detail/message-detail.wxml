@@ -1,0 +1,67 @@
+<!-- pages/message-detail/message-detail.wxml -->
+<view class="detail-container">
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 消息详情 -->
+  <block wx:elif="{{messageData}}">
+    <view class="detail-card">
+      <view class="card-header">
+        <view class="message-title">{{messageData.title}}</view>
+        <view class="message-time">{{messageData.time}}</view>
+      </view>
+
+      <view class="message-type {{messageData.type}}">
+        <text>{{messageData.type === 'system' ? '系统通知' : '订单消息'}}</text>
+      </view>
+
+      <!-- 消息内容区域 -->
+      <view class="content-section">
+        <view class="section-title">消息内容</view>
+        <view class="message-content">{{messageData.content}}</view>
+      </view>
+
+      <!-- 订单消息额外信息 -->
+      <view class="info-section" wx:if="{{messageData.type === 'order' && messageData.orderId}}">
+        <view class="section-title">订单信息</view>
+        <view class="info-row">
+          <text class="label">订单编号</text>
+          <text class="value">{{messageData.orderId}}</text>
+        </view>
+        <view class="info-row" wx:if="{{messageData.orderStatus}}">
+          <text class="label">订单状态</text>
+          <text class="value">{{messageData.orderStatus}}</text>
+        </view>
+        <view class="info-row" wx:if="{{messageData.updateTime}}">
+          <text class="label">更新时间</text>
+          <text class="value">{{messageData.updateTime}}</text>
+        </view>
+      </view>
+
+      <!-- 相关操作按钮 -->
+      <view class="action-section" wx:if="{{messageData.type === 'order' && messageData.orderId}}">
+        <button class="action-btn" bindtap="viewOrderDetail">查看相关订单</button>
+      </view>
+    </view>
+
+    <!-- 相关推荐 -->
+    <view class="related-section" wx:if="{{relatedMessages.length > 0}}">
+      <view class="section-title">相关消息</view>
+      <view class="related-list">
+        <view class="related-item" wx:for="{{relatedMessages}}" wx:key="id" bindtap="onRelatedTap" data-id="{{item.id}}">
+          <view class="related-title">{{item.title}}</view>
+          <view class="related-time">{{item.time}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 错误状态 -->
+  <view class="error-state" wx:else>
+    <image class="error-icon" src="/images/default-avatar.png"></image>
+    <text class="error-text">消息不存在或已被删除</text>
+    <button class="back-btn" bindtap="goBack">返回消息列表</button>
+  </view>
+</view>

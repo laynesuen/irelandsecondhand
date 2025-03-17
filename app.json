@@ -1,0 +1,70 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/profile/profile",
+    "pages/publish/publish",
+    "pages/publish-menu/publish-menu",
+    "pages/order/order",
+    "pages/detail/detail",
+    "pages/message-detail/message-detail",
+    "pages/chat/chat",
+    "pages/chat-list/chat-list",
+    "pages/message-center/message-center",
+    "pages/system-notifications/system-notifications",
+    "pages/settings/settings",
+    "pages/favorites/favorites",
+    "pages/profile-edit/profile-edit",
+    "pages/order-management/order-management",
+    "pages/my-carries/my-carries",
+    "pages/my-trips/my-trips",
+    "pages/contact-info/contact-info",
+    "pages/privacy/privacy",
+    "pages/security/security",
+    "pages/change-password/change-password",
+    "pages/set-payment-password/set-payment-password"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "爱岛捎带",
+    "navigationBarTextStyle": "black",
+    "handleBackFunction": "navigateBack"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#3cc51f",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "height": "60px",
+    "fontSize": "16px",
+    "paddingBottom": "10px",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tabbar/home.png",
+        "selectedIconPath": "images/tabbar/home.png"
+      },
+      {
+        "pagePath": "pages/publish-menu/publish-menu",
+        "text": "发布",
+        "iconPath": "images/tabbar/publish.png",
+        "selectedIconPath": "images/tabbar/publish.png"
+      },
+      {
+        "pagePath": "pages/chat-list/chat-list",
+        "text": "聊天",
+        "iconPath": "images/tabbar/chat.png",
+        "selectedIconPath": "images/tabbar/chat.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tabbar/profile.png",
+        "selectedIconPath": "images/tabbar/profile.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

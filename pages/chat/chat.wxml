@@ -1,0 +1,186 @@
+<!-- pages/chat/chat.wxml -->
+<view class="chat-container">
+  <!-- 用户发布信息 - 重新设计 -->
+  <view class="user-posts-card" wx:if="{{userPosts.length > 0}}">
+    <view class="post-header">
+      <view class="post-title">{{postType === 'trip' ? 'TA的行程' : 'TA的捎带需求'}}</view>
+      <view class="post-status-badge {{userPosts[0].status}}">{{userPosts[0].statusText}}</view>
+    </view>
+    
+    <view class="post-content-wrapper" 
+          wx:for="{{userPosts}}" 
+          wx:key="id"
+          bindtap="viewPostDetail"
+          data-id="{{item.id}}">
+      
+      <view class="post-main-info">
+        <view class="post-route-container">
+          <view class="location-dot start"></view>
+          <view class="route-line"></view>
+          <view class="location-dot end"></view>
+          <view class="post-route">
+            <view class="route-line-horizontal">
+              <text class="route-point">{{item.from}}</text>
+              <text class="route-arrow">→</text>
+              <text class="route-point">{{item.to}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="post-details">
+          <view class="post-detail-item">
+            <text class="detail-label">时间：</text>
+            <text class="detail-value">{{item.time}}</text>
+          </view>
+          <view class="post-detail-item" wx:if="{{item.price}}">
+            <text class="detail-label">价格：</text>
+            <text class="detail-value price">¥{{item.price}}</text>
+          </view>
+          <view class="post-detail-item" wx:if="{{item.description}}">
+            <text class="detail-label">备注：</text>
+            <text class="detail-value">{{item.description}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="post-status-wrapper">
+        <view class="order-btn-container" catchtap="createOrder" data-id="{{item.id}}" data-type="{{item.type}}">
+          <button class="order-btn">{{postType === 'trip' ? '立即下单' : '立即接单'}}</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 消息列表 -->
+  <scroll-view 
+    class="message-list {{keyboardHeight > 0 ? 'keyboard-active' : ''}}" 
+    scroll-y="true" 
+    scroll-into-view="{{scrollToMessage}}"
+    scroll-with-animation="true"
+    bindscrolltoupper="loadMoreMessages"
+    enhanced="true"
+    show-scrollbar="false"
+    style="--keyboard-height: {{keyboardHeight}}px;">
+    
+    <!-- 加载更多 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 消息列表 -->
+    <block wx:for="{{messageList}}" wx:key="id">
+      <!-- 日期分割线 - 可选根据需要显示 -->
+      <view class="date-divider" wx:if="{{index === 0 || (index > 0 && item.date !== messageList[index-1].date)}}">
+        {{item.date || item.time}}
+      </view>
+      
+      <view class="message-wrapper">
+        <view class="message-item {{item.isSelf ? 'self' : ''}}" id="msg-{{item.id}}">
+          <view class="message-avatar">
+            <image src="{{item.isSelf ? userInfo.avatar : targetUser.avatar}}" mode="aspectFill"></image>
+          </view>
+          <view class="message-content">
+            <!-- 文本消息 -->
+            <view class="message-bubble" wx:if="{{item.type === 'text' || !item.type}}">
+              <text>{{item.content}}</text>
+            </view>
+            
+            <!-- 图片消息 -->
+            <view class="message-bubble image" wx:elif="{{item.type === 'image'}}">
+              <image src="{{item.content}}" 
+                     mode="widthFix" 
+                     bindtap="previewImage" 
+                     data-src="{{item.content}}"
+                     binderror="onImageError"
+                     data-id="{{item.id}}"></image>
+            </view>
+            
+            <!-- 订单消息 -->
+            <view class="message-bubble order" wx:elif="{{item.type === 'order'}}">
+              <view class="order-info">
+                <view class="order-detail">
+                  <view class="order-title">订单信息</view>
+                  <view class="order-row">
+                    <text class="order-label">订单号：</text>
+                    <text class="order-value">{{item.content.orderId || '未知'}}</text>
+                  </view>
+                  <view class="order-row">
+                    <text class="order-label">状态：</text>
+                    <text class="order-value">{{item.content.status || '未知'}}</text>
+                  </view>
+                  <view class="order-row" wx:if="{{item.content.price}}">
+                    <text class="order-label">金额：</text>
+                    <text class="order-value price">¥{{item.content.price}}</text>
+                  </view>
+                </view>
+                <view class="order-action">
+                  <text catchtap="viewOrderDetail" data-id="{{item.content.orderId}}">查看详情</text>
+                </view>
+              </view>
+            </view>
+            
+            <view class="message-time">
+              {{item.time}}
+              <text class="typing-status" wx:if="{{!item.isSelf && index === messageList.length-1 && targetUser.typing}}">对方正在输入...</text>
+            </view>
+            
+            <view class="message-status" wx:if="{{item.isSelf}}">
+              <text class="status-text {{item.status}}">{{item.status === 'sending' ? '发送中...' : item.status === 'failed' ? '发送失败' : ''}}</text>
+              <view class="retry-btn" wx:if="{{item.status === 'failed'}}" catchtap="resendMessage" data-message="{{item}}">
+                <icon type="refresh" size="14" color="#ffffff"></icon>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+
+  <!-- 输入和功能面板区域 -->
+  <view class="bottom-wrapper" style="bottom: {{keyboardHeight > 0 ? keyboardHeight + 'px' : '0'}}">
+    <!-- 输入区域 -->
+    <view class="input-area">
+      <view class="input-box">
+        <!-- 功能按钮 -->
+        <view class="function-btn" catchtap="toggleFunctionPanel">
+          <text style="font-size: 28rpx; font-weight: bold;">···</text>
+        </view>
+        <input 
+          class="message-input" 
+          value="{{inputMessage}}"
+          bindinput="onInputChange"
+          placeholder="请输入消息"
+          confirm-type="send"
+          bindconfirm="sendMessage"
+          adjust-position="{{false}}"
+          cursor-spacing="20"
+          bindfocus="onInputFocus"
+          bindblur="onInputBlur"
+          focus="{{inputFocus}}"
+        />
+        <view class="send-btn {{inputMessage ? 'active' : ''}}" catchtap="sendMessage">发送</view>
+      </view>
+    </view>
+
+    <!-- 功能面板 -->
+    <view class="function-panel {{showFunctionPanel ? 'show' : ''}}" wx:if="{{showFunctionPanel}}">
+      <view class="function-item" catchtap="chooseImage">
+        <view class="function-icon">
+          <icon type="image" size="28" color="#3cc51f"></icon>
+        </view>
+        <text class="function-text">图片</text>
+      </view>
+      <view class="function-item" catchtap="shareOrder">
+        <view class="function-icon">
+        </view>
+        <text class="function-text">订单</text>
+      </view>
+      <view class="function-item" catchtap="shareLocation">
+        <view class="function-icon">
+          <icon type="location" size="28" color="#3cc51f"></icon>
+        </view>
+        <text class="function-text">位置</text>
+      </view>
+    </view>
+  </view>
+</view>

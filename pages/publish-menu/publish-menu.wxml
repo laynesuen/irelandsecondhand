@@ -1,0 +1,42 @@
+<!-- pages/publish-menu/publish-menu.wxml -->
+<view class="publish-menu-container">
+  <view class="title-block">
+    <text class="page-title">发布服务</text>
+    <text class="page-subtitle">请选择您要发布的服务类型</text>
+  </view>
+  
+  <view class="publish-options">
+    <view class="option-card" bindtap="onTripPublishTap">
+      <image class="option-icon" src="/images/icons/trip-icon.png" mode="aspectFit"></image>
+      <view class="option-info">
+        <text class="option-title">发布行程信息</text>
+        <text class="option-desc">发布您的行程信息，帮助他人捎带物品</text>
+      </view>
+      <view class="option-arrow"></view>
+    </view>
+    
+    <view class="option-card" bindtap="onNeedPublishTap">
+      <image class="option-icon" src="/images/icons/need-icon.png" mode="aspectFit"></image>
+      <view class="option-info">
+        <text class="option-title">发布捎带需求</text>
+        <text class="option-desc">发布您的捎带需求，寻找合适的帮手</text>
+      </view>
+      <view class="option-arrow"></view>
+    </view>
+  </view>
+  
+  <view class="tips-section">
+    <view class="tip-item">
+      <view class="tip-dot"></view>
+      <text class="tip-text">发布前请确保信息真实有效</text>
+    </view>
+    <view class="tip-item">
+      <view class="tip-dot"></view>
+      <text class="tip-text">请勿发布违法违规内容</text>
+    </view>
+    <view class="tip-item">
+      <view class="tip-dot"></view>
+      <text class="tip-text">使用平台服务即代表同意《服务协议》</text>
+    </view>
+  </view>
+</view> 

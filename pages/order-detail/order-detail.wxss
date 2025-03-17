@@ -1,0 +1,222 @@
+/* pages/order-detail/order-detail.wxss */
+
+/* 订单基本信息 */
+.order-info {
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.order-status {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.order-id, .order-time {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 支付方式选择 */
+.payment-section {
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.payment-methods {
+  margin-bottom: 20rpx;
+}
+
+.payment-methods radio {
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+}
+
+.pay-btn {
+  background: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  padding: 20rpx 0;
+  border-radius: 8rpx;
+}
+
+/* 物流信息 */
+.logistics-section {
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.logistics-status {
+  margin-bottom: 20rpx;
+}
+
+.current-status {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.current-location, .estimated-arrival {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.tracking-number-update {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.tracking-input, .carrier-input {
+  flex: 1;
+  height: 80rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+.update-btn {
+  width: 160rpx;
+  background: #07c160;
+  color: #fff;
+  font-size: 28rpx;
+  padding: 0;
+  line-height: 80rpx;
+  border-radius: 8rpx;
+}
+
+.tracking-history {
+  margin-top: 20rpx;
+}
+
+.history-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.history-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.history-item .time {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.history-item .location {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.history-item .description {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 通知列表 */
+.notifications-section {
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.notification-list {
+  margin-top: 16rpx;
+}
+
+.notification-item {
+  padding: 16rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.notification-item.unread {
+  background: #f8f8f8;
+}
+
+.notification-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.notification-content {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.notification-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 订单详情 */
+.order-details {
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+}
+
+.detail-item .label {
+  color: #666;
+  width: 160rpx;
+}
+
+.detail-item .value {
+  color: #333;
+  flex: 1;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  padding: 20rpx;
+  background: #fff;
+}
+
+.review-btn, .confirm-btn {
+  width: 200rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.review-btn {
+  background: #07c160;
+  color: #fff;
+}
+
+.confirm-btn {
+  background: #1989fa;
+  color: #fff;
+}

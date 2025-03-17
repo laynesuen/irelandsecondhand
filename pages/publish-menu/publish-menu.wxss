@@ -1,0 +1,129 @@
+/* pages/publish-menu/publish-menu.wxss */
+.publish-menu-container {
+  padding: 40rpx 30rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background-color: #f9f9fb;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 标题区域 */
+.title-block {
+  margin-bottom: 60rpx;
+  padding: 20rpx 0;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.page-subtitle {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+}
+
+/* 发布选项卡片 */
+.publish-options {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+  margin-bottom: 80rpx;
+}
+
+.option-card {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s;
+  position: relative;
+}
+
+.option-card:active {
+  background-color: #f5f5f5;
+  transform: scale(0.98);
+}
+
+/* 图标样式 */
+.option-icon {
+  width: 80rpx;
+  height: 80rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+/* 选项信息 */
+.option-info {
+  flex: 1;
+}
+
+.option-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.option-desc {
+  font-size: 28rpx;
+  color: #888;
+  display: block;
+}
+
+/* 箭头样式 */
+.option-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 3rpx solid #bbb;
+  border-right: 3rpx solid #bbb;
+  transform: rotate(45deg);
+  margin-left: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 提示区域 */
+.tips-section {
+  margin-top: auto;
+  padding: 30rpx 0;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.tip-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background-color: #3cc51f;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 28rpx;
+  color: #888;
+  line-height: 1.5;
+}
+
+/* 第一个选项卡片样式 */
+.option-card:first-child {
+  border-left: 6rpx solid #3cc51f;
+}
+
+/* 第二个选项卡片样式 */
+.option-card:last-child {
+  border-left: 6rpx solid #ff9800;
+} 

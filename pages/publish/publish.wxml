@@ -1,0 +1,179 @@
+<!-- pages/publish/publish.wxml -->
+<view class="publish-container">
+  <!-- 草稿保存提示 -->
+  <view class="save-draft-tip" wx:if="{{showDraftTip}}">
+    已自动保存为草稿，下次可继续编辑
+  </view>
+
+  <!-- 未登录时的提示覆盖层 -->
+  <view class="login-overlay" wx:if="{{!isLoggedIn && showLoginTip}}">
+    <view class="login-card">
+      <image class="login-icon" src="/images/profile/login.png" mode="aspectFit"></image>
+      <view class="login-title">登录后才能发布信息</view>
+      <view class="login-desc">登录账号后可以发布捎带需求或行程信息，享受更多服务</view>
+      <button class="login-btn" bindtap="onLoginTap">立即登录</button>
+      <view class="login-cancel" bindtap="hideLoginTip">先去看看</view>
+    </view>
+  </view>
+  
+  <!-- 表单容器区域 -->
+  <view class="form-wrapper">
+    <!-- 行程信息表单 -->
+    <view class="form-container" wx:if="{{activeTab === 0}}">
+      
+      <view class="form-group">
+        <text class="form-label">出发地 <text class="required">*</text></text>
+        <view class="input-wrapper {{inputFocus.fromLocation ? 'input-focus' : ''}}">
+          <input class="form-input" placeholder="请输入出发地" placeholder-class="input-placeholder" value="{{formData.trip.fromLocation}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="fromLocation" />
+        </view>
+        <text class="error-text" wx:if="{{errors.fromLocation}}">{{errors.fromLocation}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">目的地 <text class="required">*</text></text>
+        <view class="input-wrapper {{inputFocus.toLocation ? 'input-focus' : ''}}">
+          <input class="form-input" placeholder="请输入目的地" placeholder-class="input-placeholder" value="{{formData.trip.toLocation}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="toLocation" />
+        </view>
+        <text class="error-text" wx:if="{{errors.toLocation}}">{{errors.toLocation}}</text>
+      </view>
+      
+      <!-- 新增航班号字段 -->
+      <view class="form-group">
+        <text class="form-label">航班号</text>
+        <view class="input-wrapper {{inputFocus.flightNumber ? 'input-focus' : ''}}">
+          <input class="form-input" placeholder="请输入航班号(例如: CA123)" placeholder-class="input-placeholder" value="{{formData.trip.flightNumber}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="flightNumber" />
+        </view>
+        <text class="error-text" wx:if="{{errors.flightNumber}}">{{errors.flightNumber}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">出发时间 <text class="required">*</text></text>
+        <picker mode="date" start="{{startDate}}" value="{{formData.trip.departureTime}}" bindchange="onDateChange" data-field="departureTime">
+          <view class="picker {{formData.trip.departureTime ? '' : 'placeholder'}}">
+            <text class="picker-text">{{formData.trip.departureTime || '请选择出发时间'}}</text>
+          </view>
+        </picker>
+        <text class="error-text" wx:if="{{errors.departureTime}}">{{errors.departureTime}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">可携带重量 <text class="required">*</text></text>
+        <view class="input-wrapper {{inputFocus.availableWeight ? 'input-focus' : ''}}">
+          <input class="form-input" type="digit" placeholder="请输入可携带重量(kg，整数)" placeholder-class="input-placeholder" value="{{formData.trip.availableWeight}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="availableWeight" />
+        </view>
+        <text class="error-text" wx:if="{{errors.availableWeight}}">{{errors.availableWeight}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">可接受物品类型 <text class="required">*</text></text>
+        <view class="checkbox-group">
+          <label class="checkbox-item {{checkboxStates[item] ? 'checked' : ''}}" wx:for="{{acceptableItemsOptions}}" wx:key="*this">
+            <checkbox value="{{item}}" 
+                     checked="{{checkboxStates[item]}}" 
+                     bindchange="onCheckboxChange"
+                     data-item="{{item}}" />
+            <text class="checkbox-label">{{item}}</text>
+          </label>
+        </view>
+        <text class="error-text" wx:if="{{errors.acceptableItems}}">{{errors.acceptableItems}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">每公斤价格 (€)</text>
+        <view class="input-wrapper {{inputFocus.rewardRequirement ? 'input-focus' : ''}}">
+          <input class="form-input" type="digit" placeholder="请输入价格(€)" placeholder-class="input-placeholder" value="{{formData.trip.rewardRequirement}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="rewardRequirement" />
+        </view>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">备注说明</text>
+        <textarea class="form-textarea" placeholder="请输入备注说明" placeholder-class="input-placeholder" value="{{formData.trip.description}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="description"></textarea>
+      </view>
+      
+      <!-- 行程信息表单的按钮 -->
+      <view class="submit-btn-wrapper" wx:if="{{isLoggedIn && !showLoginTip}}">
+        <view class="btn-group">
+          <button class="reset-btn" bindtap="cancelForm">取消</button>
+          <button class="submit-btn" bindtap="submitForm">{{isEditMode ? '保存' : '发布'}}</button>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 捎带需求表单 -->
+    <view class="form-container" wx:if="{{activeTab === 1}}">
+      
+      <view class="form-group">
+        <text class="form-label">出发地 <text class="required">*</text></text>
+        <view class="input-wrapper {{inputFocus.fromLocation ? 'input-focus' : ''}}">
+          <input class="form-input" placeholder="请输入出发地" placeholder-class="input-placeholder" value="{{formData.need.fromLocation}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="fromLocation" />
+        </view>
+        <text class="error-text" wx:if="{{errors.fromLocation}}">{{errors.fromLocation}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">目的地 <text class="required">*</text></text>
+        <view class="input-wrapper {{inputFocus.toLocation ? 'input-focus' : ''}}">
+          <input class="form-input" placeholder="请输入目的地" placeholder-class="input-placeholder" value="{{formData.need.toLocation}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="toLocation" />
+        </view>
+        <text class="error-text" wx:if="{{errors.toLocation}}">{{errors.toLocation}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">物品类型 <text class="required">*</text></text>
+        <picker mode="selector" range="{{itemTypeOptions}}" value="{{formData.need.itemType}}" bindchange="onPickerChange" data-field="itemType">
+          <view class="picker {{formData.need.itemType ? '' : 'placeholder'}}">
+            <text class="picker-text">{{formData.need.itemType || '请选择物品类型'}}</text>
+          </view>
+        </picker>
+        <text class="error-text" wx:if="{{errors.itemType}}">{{errors.itemType}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">物品重量 <text class="required">*</text></text>
+        <view class="input-wrapper {{inputFocus.weight ? 'input-focus' : ''}}">
+          <input class="form-input" type="digit" placeholder="请输入物品重量(kg，整数)" placeholder-class="input-placeholder" value="{{formData.need.weight}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="weight" />
+        </view>
+        <text class="error-text" wx:if="{{errors.weight}}">{{errors.weight}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">物品尺寸</text>
+        <picker mode="selector" range="{{sizeOptions}}" value="{{formData.need.size}}" bindchange="onPickerChange" data-field="size">
+          <view class="picker {{formData.need.size ? '' : 'placeholder'}}">
+            <text class="picker-text">{{formData.need.size || '请选择物品尺寸'}}</text>
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">期望时间 <text class="required">*</text></text>
+        <picker mode="date" start="{{startDate}}" value="{{formData.need.expectedTime}}" bindchange="onDateChange" data-field="expectedTime">
+          <view class="picker {{formData.need.expectedTime ? '' : 'placeholder'}}">
+            <text class="picker-text">{{formData.need.expectedTime || '请选择期望时间'}}</text>
+          </view>
+        </picker>
+        <text class="error-text" wx:if="{{errors.expectedTime}}">{{errors.expectedTime}}</text>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">报酬金额 (€)</text>
+        <view class="input-wrapper {{inputFocus.reward ? 'input-focus' : ''}}">
+          <input class="form-input" type="digit" placeholder="请输入报酬金额(€)" placeholder-class="input-placeholder" value="{{formData.need.reward}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="reward" />
+        </view>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">备注说明</text>
+        <textarea class="form-textarea" placeholder="请输入备注说明" placeholder-class="input-placeholder" value="{{formData.need.description}}" bindinput="onInputChange" bindfocus="onInputFocus" bindblur="onInputBlur" data-field="description"></textarea>
+      </view>
+      
+      <!-- 捎带需求表单的按钮 -->
+      <view class="submit-btn-wrapper" wx:if="{{isLoggedIn && !showLoginTip}}">
+        <view class="btn-group">
+          <button class="reset-btn" bindtap="cancelForm">取消</button>
+          <button class="submit-btn" bindtap="submitForm">{{isEditMode ? '保存' : '发布'}}</button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

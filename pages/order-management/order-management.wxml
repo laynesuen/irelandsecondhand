@@ -1,0 +1,77 @@
+<view class="order-container">
+  <!-- 标签切换 -->
+  <view class="tab-container">
+    <view class="tabs">
+      <view class="tab {{activeType === 'all' ? 'active' : ''}}" bindtap="switchTab" data-type="all">全部</view>
+      <view class="tab {{activeType === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-type="pending">待处理</view>
+      <view class="tab {{activeType === 'processing' ? 'active' : ''}}" bindtap="switchTab" data-type="processing">进行中</view>
+      <view class="tab {{activeType === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-type="completed">已完成</view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-box">
+      <icon type="search" size="16" color="#888"></icon>
+      <input type="text" placeholder="搜索订单信息" confirm-type="search" value="{{searchKeyword}}" bindinput="onSearchInput"></input>
+      <view class="clear-btn" wx:if="{{searchKeyword}}" bindtap="clearSearch">
+        <icon type="clear" size="16" color="#888"></icon>
+      </view>
+    </view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <block wx:if="{{orders.length > 0}}">
+      <view class="order-item" wx:for="{{orders}}" wx:key="id" bindtap="viewOrderDetail" data-id="{{item.id}}">
+        <view class="order-header">
+          <view class="order-type">{{item.orderType === 'need' ? '捎带需求' : '行程信息'}}</view>
+          <view class="order-status {{item.status}}">{{statusText[item.status]}}</view>
+        </view>
+        
+        <view class="order-route">
+          <view class="route-item">
+            <view class="location-name">{{item.fromLocation}}</view>
+          </view>
+          <view class="route-arrow">→</view>
+          <view class="route-item">
+            <view class="location-name">{{item.toLocation}}</view>
+          </view>
+        </view>
+        
+        <view class="order-info">
+          <view class="info-item">
+            <text class="info-label">预期时间：</text>
+            <text class="info-value">{{item.expectedTime}}</text>
+          </view>
+          <view class="info-item" wx:if="{{item.orderType === 'need'}}">
+            <text class="info-label">物品类型：</text>
+            <text class="info-value">{{item.itemType}}</text>
+          </view>
+          <view class="info-item" wx:if="{{item.orderType === 'trip'}}">
+            <text class="info-label">可携带：</text>
+            <text class="info-value">{{item.acceptableItems}}</text>
+          </view>
+        </view>
+        
+        <view class="order-footer">
+          <view class="order-time">{{item.createTime}} 创建</view>
+          <view class="order-actions">
+            <view class="action-btn contact" catchtap="contactPublisher" data-id="{{item.id}}">联系</view>
+            <view class="action-btn cancel" wx:if="{{item.status === 'pending' || item.status === 'processing'}}" catchtap="cancelOrder" data-id="{{item.id}}">取消</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="loading-more" wx:if="{{loading && hasMore}}">加载中...</view>
+      <view class="no-more" wx:if="{{!hasMore && orders.length > 0}}">没有更多订单了</view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && orders.length === 0}}">
+      <image class="empty-icon" src="/assets/images/icon-empty.png" mode="aspectFit"></image>
+      <view class="empty-text">暂无订单信息</view>
+      <view class="empty-action" bindtap="navigateToPublish">去发布需求/行程</view>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "openapi": [
+      "subscribeMessage.send"
+    ]
+  },
+  "envVariables": {
+    "TEMPLATE_ID": "pluB7FerLzN-C5eimT7RUHuEWtU_4_dhT8Xw5olKeGU",
+    "CLOUD_HOSTED_SERVICE_URL": "https://express-yrin-147698-5-1348651097.sh.run.tcloudbase.com"
+  },
+  "env": {
+    "TEMPLATE_ID": "pluB7FerLzN-C5eimT7RUHuEWtU_4_dhT8Xw5olKeGU",
+    "ENV_ID": "cloud1-9gfzaw5d341a3e6d"
+  },
+  "runtime": "Nodejs18.15",
+  "triggers": [],
+  "timeout": 30,
+  "functionName": "messageNotify"
+} 

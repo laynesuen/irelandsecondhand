@@ -1,0 +1,141 @@
+<!--pages/security/security.wxml-->
+<view class="security-container">
+  <view class="security-header">
+    <view class="header-title">安全中心</view>
+    <view class="header-desc">管理您的账户安全设置</view>
+  </view>
+
+  <!-- 账户安全 -->
+  <view class="section">
+    <view class="section-title">账户安全</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="changePassword">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/password.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">修改密码</text>
+            <text class="menu-desc">定期更换密码保护账户安全</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+
+      <view class="menu-item" bindtap="setPaymentPassword">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/payment.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">支付密码</text>
+            <text class="menu-desc">设置交易支付密码</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+
+      <view class="menu-item" bindtap="bindPhone">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/phone.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">手机绑定</text>
+            <text class="menu-desc">绑定手机号用于安全验证</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录安全 -->
+  <view class="section">
+    <view class="section-title">登录安全</view>
+    <view class="menu-list">
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/fingerprint.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">指纹解锁</text>
+            <text class="menu-desc">使用指纹快速登录</text>
+          </view>
+        </view>
+        <switch checked="{{fingerprintEnabled}}" bindchange="toggleFingerprint" color="#3cc51f"></switch>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/face.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">面容解锁</text>
+            <text class="menu-desc">使用面容快速登录</text>
+          </view>
+        </view>
+        <switch checked="{{faceIdEnabled}}" bindchange="toggleFaceId" color="#3cc51f"></switch>
+      </view>
+
+      <view class="menu-item" bindtap="viewLoginHistory">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/history.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">登录历史</text>
+            <text class="menu-desc">查看最近登录记录</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 安全提醒 -->
+  <view class="section">
+    <view class="section-title">安全提醒</view>
+    <view class="menu-list">
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/alert.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">异常登录提醒</text>
+            <text class="menu-desc">发现异常登录时通知我</text>
+          </view>
+        </view>
+        <switch checked="{{loginAlertEnabled}}" bindchange="toggleLoginAlert" color="#3cc51f"></switch>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/transaction.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">交易安全提醒</text>
+            <text class="menu-desc">大额交易时通知我</text>
+          </view>
+        </view>
+        <switch checked="{{transactionAlertEnabled}}" bindchange="toggleTransactionAlert" color="#3cc51f"></switch>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他安全选项 -->
+  <view class="section">
+    <view class="section-title">其他安全选项</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="clearLoginDevices">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/device.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">清除登录设备</text>
+            <text class="menu-desc">清除所有已登录设备</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+
+      <view class="menu-item" bindtap="viewSecurityLog">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/security/log.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">安全日志</text>
+            <text class="menu-desc">查看账户安全操作记录</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+</view>

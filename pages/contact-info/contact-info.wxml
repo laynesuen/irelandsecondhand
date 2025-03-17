@@ -1,0 +1,75 @@
+<!-- pages/contact-info/contact-info.wxml -->
+<view class="contact-container">
+  <view class="contact-header">
+    <text class="header-title">联系方式</text>
+    <text class="header-desc">管理您的联系信息</text>
+  </view>
+
+  <!-- 手机号码 -->
+  <view class="settings-section">
+    <view class="section-title">手机号码</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onPhoneTap">
+        <view class="menu-item-left">
+          <text class="menu-text">手机号码</text>
+          <text class="menu-desc">用于接收验证码和通知</text>
+        </view>
+        <view class="menu-item-right">
+          <text class="value-text">{{userInfo.phoneNumber || '未设置'}}</text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 邮箱 -->
+  <view class="settings-section">
+    <view class="section-title">邮箱</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onEmailTap">
+        <view class="menu-item-left">
+          <text class="menu-text">邮箱地址</text>
+          <text class="menu-desc">用于接收重要通知和账单</text>
+        </view>
+        <view class="menu-item-right">
+          <text class="value-text">{{userInfo.email || '未设置'}}</text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 微信 -->
+  <view class="settings-section">
+    <view class="section-title">微信</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onWechatTap">
+        <view class="menu-item-left">
+          <text class="menu-text">微信号</text>
+          <text class="menu-desc">用于接收订单通知和客服联系</text>
+        </view>
+        <view class="menu-item-right">
+          <text class="value-text">{{userInfo.wechatId || '未设置'}}</text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他联系方式 -->
+  <view class="settings-section">
+    <view class="section-title">其他联系方式</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onQQTap">
+        <view class="menu-item-left">
+          <text class="menu-text">QQ</text>
+          <text class="menu-desc">用于接收订单通知和客服联系</text>
+        </view>
+        <view class="menu-item-right">
+          <text class="value-text">{{userInfo.qq || '未设置'}}</text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

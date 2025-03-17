@@ -1,0 +1,62 @@
+<!-- pages/system-notifications/system-notifications.wxml -->
+<view class="notification-container">
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper">
+      <icon class="search-icon" type="search" size="16" color="#8c9aa8"></icon>
+      <input class="search-input" placeholder="搜索通知" bindinput="onSearchInput" value="{{searchKeyword}}"/>
+    </view>
+  </view>
+  
+  <!-- 功能操作栏 -->
+  <view class="action-bar">
+    <view class="action-btn" bindtap="markAllAsRead">
+      <text>全部已读</text>
+    </view>
+  </view>
+  
+  <!-- 通知列表 -->
+  <view class="notification-list">
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{notificationList.length === 0 && !loading.notification}}">
+      <image class="empty-icon" src="/images/default-avatar.png"></image>
+      <text class="empty-text">暂无系统通知</text>
+    </view>
+    
+    <!-- 加载中 -->
+    <view class="loading" wx:if="{{loading.notification}}">
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 通知项 -->
+    <view class="notification-item {{!item.isRead ? 'unread' : ''}}" 
+          wx:for="{{notificationList}}" 
+          wx:key="id" 
+          bindtap="onNotificationTap" 
+          data-id="{{item.id}}">
+      <!-- 通知类型图标 -->
+      <view class="notification-icon type-{{item.type}}">
+        <image src="{{notificationIcons[item.type]}}" mode="aspectFill"></image>
+      </view>
+      
+      <view class="notification-content">
+        <view class="notification-header">
+          <text class="notification-title">{{item.title}}</text>
+          <text class="notification-time">{{item.time}}</text>
+        </view>
+        <view class="notification-body">{{item.content}}</view>
+      </view>
+      
+      <!-- 未读标记 -->
+      <view class="unread-indicator" wx:if="{{!item.isRead}}"></view>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="loading-more" wx:if="{{hasMore.notification && !loading.notification && notificationList.length > 0}}" bindtap="loadMore">
+      <text>加载更多</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore.notification && notificationList.length > 0}}">
+      <text>没有更多通知了</text>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,119 @@
+/* pages/profile-edit/profile-edit.wxss */
+.edit-container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+.edit-header {
+  background-color: #ffffff;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #eeeeee;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.avatar-section {
+  background-color: #ffffff;
+  padding: 40rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.avatar {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  margin-bottom: 20rpx;
+}
+
+.change-avatar {
+  font-size: 28rpx;
+  color: #3cc51f;
+  padding: 10rpx 20rpx;
+  border: 1px solid #3cc51f;
+  border-radius: 30rpx;
+}
+
+.form-section {
+  background-color: #ffffff;
+  padding: 10rpx 30rpx;
+}
+
+.form-item {
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eeeeee;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 20rpx;
+}
+
+.form-input {
+  font-size: 30rpx;
+  height: 60rpx;
+  color: #333333;
+  width: 100%;
+}
+
+.form-picker {
+  font-size: 30rpx;
+  height: 60rpx;
+  color: #333333;
+}
+
+.picker-text {
+  line-height: 60rpx;
+}
+
+.form-textarea {
+  font-size: 30rpx;
+  width: 100%;
+  height: 200rpx;
+  color: #333333;
+}
+
+.button-section {
+  margin-top: 40rpx;
+  padding: 0 30rpx;
+}
+
+.save-btn {
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #3cc51f;
+  color: #ffffff;
+  font-size: 32rpx;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.save-btn:active {
+  opacity: 0.8;
+}
+
+.cancel-btn {
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #ffffff;
+  color: #666666;
+  font-size: 32rpx;
+  border-radius: 10rpx;
+}
+
+.cancel-btn:active {
+  opacity: 0.8;
+}

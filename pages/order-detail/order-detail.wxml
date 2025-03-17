@@ -1,0 +1,104 @@
+<!--pages/order-detail/order-detail.wxml-->
+<view class="order-info">
+  <view class="order-status">{{orderData.statusText}}</view>
+  <view class="order-id">订单号：{{orderData.orderId}}</view>
+  <view class="order-time">下单时间：{{orderData.createTime}}</view>
+</view>
+
+<!-- 支付方式选择 -->
+<view class="payment-section" wx:if="{{orderData.status === 'unpaid'}}">
+  <view class="section-title">支付方式</view>
+  <radio-group class="payment-methods" bindchange="onPaymentMethodChange">
+    <radio wx:for="{{paymentMethods}}" 
+           wx:key="id" 
+           value="{{item.id}}"
+           checked="{{selectedPaymentMethod.id === item.id}}">
+      {{item.name}} ({{item.currency}})
+    </radio>
+  </radio-group>
+  <button class="pay-btn" bindtap="handlePayment">立即支付</button>
+</view>
+
+<!-- 物流信息 -->
+<view class="logistics-section" wx:if="{{orderData.status === 'shipping'}}">
+  <view class="section-title">物流信息</view>
+  <view class="logistics-status">
+    <view class="current-status">{{logisticsStatus.status}}</view>
+    <view class="current-location">当前位置：{{logisticsStatus.currentLocation}}</view>
+    <view class="estimated-arrival">预计到达：{{logisticsStatus.estimatedArrival}}</view>
+  </view>
+  
+  <!-- 快递单号更新 -->
+  <view class="tracking-number-update">
+    <input type="text" 
+           placeholder="请输入快递单号" 
+           model:value="{{trackingNumber}}"
+           class="tracking-input"/>
+    <input type="text" 
+           placeholder="请输入快递公司" 
+           model:value="{{carrier}}"
+           class="carrier-input"/>
+    <button class="update-btn" bindtap="updateTrackingNumber">更新</button>
+  </view>
+  
+  <!-- 物流轨迹 -->
+  <view class="tracking-history">
+    <view class="history-title">物流轨迹</view>
+    <view class="history-item" wx:for="{{logisticsStatus.trackingHistory}}" wx:key="time">
+      <view class="time">{{item.time}}</view>
+      <view class="location">{{item.location}}</view>
+      <view class="description">{{item.description}}</view>
+    </view>
+  </view>
+</view>
+
+<!-- 通知列表 -->
+<view class="notifications-section">
+  <view class="section-title">订单通知</view>
+  <view class="notification-list">
+    <view class="notification-item {{item.isRead ? 'read' : 'unread'}}" 
+          wx:for="{{notifications}}" 
+          wx:key="id"
+          bindtap="markNotificationAsRead"
+          data-id="{{item.id}}">
+      <view class="notification-title">{{item.title}}</view>
+      <view class="notification-content">{{item.content}}</view>
+      <view class="notification-time">{{item.sendTime}}</view>
+    </view>
+  </view>
+</view>
+
+<!-- 订单详情 -->
+<view class="order-details">
+  <view class="section-title">订单详情</view>
+  <view class="detail-item">
+    <text class="label">商品名称：</text>
+    <text class="value">{{orderData.productName}}</text>
+  </view>
+  <view class="detail-item">
+    <text class="label">订单金额：</text>
+    <text class="value">{{orderData.amount}} {{orderData.currency}}</text>
+  </view>
+  <view class="detail-item">
+    <text class="label">收货地址：</text>
+    <text class="value">{{orderData.address}}</text>
+  </view>
+  <view class="detail-item">
+    <text class="label">联系电话：</text>
+    <text class="value">{{orderData.phone}}</text>
+  </view>
+</view>
+
+<!-- 操作按钮 -->
+<view class="action-buttons">
+  <button wx:if="{{orderData.status === 'completed' && !orderData.hasReview}}"
+          class="review-btn"
+          bindtap="goToReview">
+    评价订单
+  </button>
+  <button wx:if="{{orderData.status === 'shipping'}}"
+          class="confirm-btn"
+          bindtap="confirmReceive">
+    确认收货
+  </button>
+</view>

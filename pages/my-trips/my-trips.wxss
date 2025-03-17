@@ -1,0 +1,453 @@
+/* pages/my-trips/my-trips.wxss */
+
+.my-trips-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+  padding-top: 20rpx;
+}
+
+/* 搜索框 - 美化 */
+.search-box {
+  padding: 20rpx 30rpx;
+  background-color: #ffffff;
+  margin: 0 auto 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.03);
+  border-radius: 12rpx;
+  max-width: 92%;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  height: 72rpx;
+  background-color: #f5f7f9;
+  border-radius: 36rpx;
+  padding: 0 24rpx;
+  transition: all 0.3s;
+}
+
+.search-bar:hover {
+  box-shadow: 0 0 0 2rpx rgba(76, 175, 80, 0.2);
+}
+
+.search-input {
+  flex: 1;
+  height: 72rpx;
+  font-size: 28rpx;
+  margin-left: 16rpx;
+  color: #333;
+}
+
+.search-btn {
+  padding: 0 20rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+  background-color: #4caf50;
+  border-radius: 28rpx;
+}
+
+/* 行程列表 - 美化 */
+.trips-list {
+  height: calc(100vh - 132rpx);
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+
+/* 空状态 - 美化 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.8;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #999;
+  margin-bottom: 50rpx;
+}
+
+.publish-btn {
+  background-color: #4caf50 !important;
+  color: white !important;
+  font-size: 28rpx !important;
+  padding: 0 60rpx !important;
+}
+
+/* 加载状态 - 美化 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.loading-spinner {
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid rgba(76, 175, 80, 0.2);
+  border-top: 4rpx solid #4caf50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 行程列表项 - 美化 */
+.trip-item-container {
+  margin-bottom: 24rpx;
+  animation: fadeIn 0.5s ease-out;
+  padding: 0 4rpx;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.trip-item {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-shadow: 0 4rpx 15rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  border: 2rpx solid rgba(0, 0, 0, 0.02);
+}
+
+.trip-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  background-color: #fafafa;
+}
+
+.trip-info {
+  margin-bottom: 20rpx;
+}
+
+.trip-route {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  padding: 12rpx 0;
+  position: relative;
+}
+
+.location-wrapper {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.location {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 600;
+  max-width: 180rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location.from {
+  color: #4caf50;
+}
+
+.location.to {
+  color: #2196f3;
+}
+
+/* 改变路线显示 */
+.route-line {
+  flex: 1;
+  min-width: 100rpx;
+  position: relative;
+  margin: 0 15rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+}
+
+.route-line-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2rpx;
+  background-color: #e0e0e0;
+  z-index: 1;
+}
+
+.route-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 0 0 4rpx rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+
+.route-dot.start {
+  background-color: #4caf50;
+  margin-right: auto;
+}
+
+.route-dot.end {
+  background-color: #2196f3;
+  margin-left: auto;
+}
+
+/* 状态显示 */
+.route-status {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+  z-index: 3;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+  background-color: white;
+  border: 1px solid rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120rpx;
+}
+
+.route-status .status-text {
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #333;
+}
+
+/* 状态标签的独立容器 */
+.status-container {
+  position: absolute;
+  top: calc(50% + 24rpx);
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8rpx;
+}
+
+.status-badge {
+  font-size: 18rpx;
+  line-height: 1;
+  padding: 4rpx 12rpx;
+  border-radius: 10rpx;
+  background-color: rgba(0,0,0,0.04);
+  font-weight: 500;
+  box-shadow: 0 1rpx 3rpx rgba(0,0,0,0.08);
+  white-space: nowrap;
+}
+
+.route-status.published .status-text {
+  color: #333;
+}
+
+.route-status.ongoing .status-text {
+  color: #2196f3;
+}
+
+.route-status.completed .status-text {
+  color: #4caf50;
+}
+
+.trip-detail {
+  background-color: #f9f9f9;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  box-shadow: inset 0 1rpx 8rpx rgba(0, 0, 0, 0.03);
+  margin-top: 20rpx;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 14rpx;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  width: 150rpx;
+  font-size: 26rpx;
+  color: #888;
+  flex-shrink: 0;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.detail-value {
+  font-size: 26rpx;
+  color: #1e88e5;
+  font-weight: 500;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
+  vertical-align: middle;
+  max-width: calc(100% - 170rpx);
+  flex: none;
+  width: auto;
+  background: linear-gradient(135deg, rgba(30, 136, 229, 0.08), rgba(30, 136, 229, 0.16));
+}
+
+/* 为不同类型的值应用特定样式 */
+.detail-value.price {
+  color: #ff5252;
+  background: linear-gradient(135deg, rgba(255, 82, 82, 0.08), rgba(255, 82, 82, 0.16));
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.detail-value.time {
+  color: #ff9800;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.08), rgba(255, 152, 0, 0.16));
+}
+
+/* 可接受物品标签样式 */
+.detail-value.item-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  background: transparent;
+  padding: 4rpx 0;
+  max-width: calc(100% - 170rpx);
+}
+
+.item-tag {
+  color: #4caf50;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(76, 175, 80, 0.16));
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  font-weight: 500;
+  font-size: 24rpx;
+  display: inline-block;
+}
+
+/* 操作按钮区域调整 */
+.trip-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 20rpx;
+  position: relative;
+  padding-top: 15rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.action-btn {
+  min-width: 120rpx;
+  padding: 0 30rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: 26rpx;
+  margin-left: 20rpx;
+  background-color: #f8f8f8;
+  color: #666;
+  border-radius: 32rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.action-btn.edit-btn {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(25, 118, 210, 0.15);
+}
+
+.action-btn.edit-btn:active {
+  background-color: #bbdefb;
+  transform: scale(0.96);
+}
+
+.action-btn.cancel-btn {
+  background-color: #ffebee;
+  color: #f44336;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(244, 67, 54, 0.15);
+}
+
+.action-btn.cancel-btn:active {
+  background-color: #ffcdd2;
+  transform: scale(0.96);
+}
+
+/* 加载更多 - 美化 */
+.load-more, .no-more {
+  text-align: center;
+  padding: 30rpx 0;
+}
+
+.load-more-text {
+  font-size: 26rpx;
+  color: #4caf50;
+  padding: 10rpx 40rpx;
+  border-radius: 30rpx;
+  background-color: rgba(76, 175, 80, 0.1);
+  display: inline-block;
+}
+
+.no-more-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 添加分隔线，区分信息和按钮区域 */
+.trip-actions::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #f0f0f0;
+} 

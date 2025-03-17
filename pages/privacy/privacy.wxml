@@ -1,0 +1,87 @@
+<!--pages/privacy/privacy.wxml-->
+<view class="privacy-container">
+  <view class="privacy-header">
+    <text class="header-title">隐私设置</text>
+    <text class="header-desc">管理您的个人信息可见范围</text>
+  </view>
+
+  <!-- 个人资料可见性 -->
+  <view class="settings-section">
+    <view class="section-title">个人资料可见性</view>
+    <view class="menu-list">
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <text class="menu-text">个人资料</text>
+          <text class="menu-desc">控制个人资料的可见范围</text>
+        </view>
+        <picker bindchange="onProfileVisibilityChange" value="{{privacySettings.profileVisibilityIndex}}" range="{{visibilityOptions}}">
+          <view class="picker-value">{{visibilityOptions[privacySettings.profileVisibilityIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <text class="menu-text">位置信息</text>
+          <text class="menu-desc">控制位置信息的可见范围</text>
+        </view>
+        <picker bindchange="onLocationVisibilityChange" value="{{privacySettings.locationVisibilityIndex}}" range="{{visibilityOptions}}">
+          <view class="picker-value">{{visibilityOptions[privacySettings.locationVisibilityIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <text class="menu-text">订单历史</text>
+          <text class="menu-desc">控制订单历史的可见范围</text>
+        </view>
+        <picker bindchange="onOrderHistoryVisibilityChange" value="{{privacySettings.orderHistoryVisibilityIndex}}" range="{{visibilityOptions}}">
+          <view class="picker-value">{{visibilityOptions[privacySettings.orderHistoryVisibilityIndex]}}</view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <!-- 社交设置 -->
+  <view class="settings-section">
+    <view class="section-title">社交设置</view>
+    <view class="menu-list">
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <text class="menu-text">好友请求</text>
+          <text class="menu-desc">是否允许其他用户发送好友请求</text>
+        </view>
+        <switch checked="{{privacySettings.allowFriendRequests}}" bindchange="onFriendRequestsChange" color="#3cc51f"></switch>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <text class="menu-text">位置追踪</text>
+          <text class="menu-desc">是否允许应用追踪您的位置</text>
+        </view>
+        <switch checked="{{privacySettings.allowLocationTracking}}" bindchange="onLocationTrackingChange" color="#3cc51f"></switch>
+      </view>
+    </view>
+  </view>
+
+  <!-- 法律信息 -->
+  <view class="settings-section">
+    <view class="section-title">法律信息</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="navigateToPrivacyPolicy">
+        <view class="menu-item-left">
+          <text class="menu-text">隐私政策</text>
+          <text class="menu-desc">查看我们的隐私政策</text>
+        </view>
+        <text class="arrow">></text>
+      </view>
+
+      <view class="menu-item" bindtap="navigateToUserAgreement">
+        <view class="menu-item-left">
+          <text class="menu-text">用户协议</text>
+          <text class="menu-desc">查看我们的用户协议</text>
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,113 @@
+<!-- pages/settings/settings.wxml -->
+<view class="settings-container">
+  <view class="settings-header">
+    <view class="header-title">账户设置</view>
+    <view class="header-desc">管理您的个人信息与账户偏好</view>
+  </view>
+
+  <!-- 个人信息 -->
+  <view class="section">
+    <view class="section-title">个人信息</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="navigateToProfileEdit">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/profile/user.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">编辑个人资料</text>
+            <text class="menu-desc">修改昵称、头像等基本信息</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+
+      <view class="menu-item" bindtap="navigateToContactInfo">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/profile/contact.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">联系方式</text>
+            <text class="menu-desc">管理联系电话、邮箱等</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 通知设置 -->
+  <view class="section">
+    <view class="section-title">通知设置</view>
+    <view class="menu-list">
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/profile/notification.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">消息通知</text>
+            <text class="menu-desc">新消息、订单状态等通知设置</text>
+          </view>
+        </view>
+        <switch checked="{{notificationEnabled}}" bindchange="toggleNotification" color="#3cc51f"></switch>
+      </view>
+    </view>
+  </view>
+
+  <!-- 应用设置 -->
+  <view class="section">
+    <view class="section-title">应用设置</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="clearCache">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/profile/clear.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">清除缓存</text>
+            <text class="menu-desc">清除本地存储的临时数据</text>
+          </view>
+        </view>
+        <text class="value-text">{{cacheSize}}</text>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/profile/dark-mode.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">深色模式</text>
+            <text class="menu-desc">更改应用显示主题</text>
+          </view>
+        </view>
+        <switch checked="{{darkModeEnabled}}" bindchange="toggleDarkMode" color="#3cc51f"></switch>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于与支持 -->
+  <view class="section">
+    <view class="section-title">关于与支持</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="showAbout">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/profile/about.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">关于我们</text>
+            <text class="menu-desc">了解应用信息与使用条款</text>
+          </view>
+        </view>
+        <text class="value-text">版本 1.0.0</text>
+      </view>
+
+      <view class="menu-item" bindtap="contactCustomerService">
+        <view class="menu-item-left">
+          <image class="menu-icon" src="/images/profile/customer.png" mode="aspectFit"></image>
+          <view class="menu-text-container">
+            <text class="menu-text">联系客服</text>
+            <text class="menu-desc">获取帮助或反馈问题</text>
+          </view>
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="bottom-actions">
+    <button class="logout-btn" bindtap="logout">退出登录</button>
+  </view>
+</view> 

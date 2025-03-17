@@ -1,0 +1,175 @@
+<!-- pages/detail/detail.wxml -->
+<view class="detail-container">
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 捎带需求详情 -->
+  <block wx:elif="{{type === 'need' && detailData}}">
+    <view class="detail-card">
+      <view class="card-header">
+        <view class="route">
+          <view class="location-wrapper from-wrapper">
+            <text class="location from">{{detailData.fromLocation}}</text>
+          </view>
+          <view class="route-line">
+            <view class="route-line-bg"></view>
+            <view class="route-dot start"></view>
+            <view class="route-status needs">
+              <text class="status-text">待接单</text>
+            </view>
+            <view class="route-dot end"></view>
+          </view>
+          <view class="location-wrapper to-wrapper">
+            <text class="location to">{{detailData.toLocation}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="info-section">
+        <view class="section-title">物品信息</view>
+        <view class="info-row">
+          <text class="label">报酬</text>
+          <text class="value reward-value">{{detailData.reward}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">物品</text>
+          <text class="value">{{detailData.itemType}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">重量</text>
+          <text class="value">{{detailData.weight}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">尺寸</text>
+          <text class="value">{{detailData.size}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">期望时间</text>
+          <text class="value">{{detailData.expectedTime}}</text>
+        </view>
+      </view>
+
+      <view class="info-section">
+        <view class="section-title">详细描述</view>
+        <view class="description">{{detailData.description}}</view>
+      </view>
+
+      <view class="info-section" wx:if="{{detailData.requirements}}">
+        <view class="section-title">备注</view>
+        <view class="description">{{detailData.requirements}}</view>
+      </view>
+
+      <view class="publisher-info">
+        <image class="avatar" src="{{detailData.publisher.avatar}}"></image>
+        <view class="publisher-detail">
+          <text class="name">{{detailData.publisher.name}}</text>
+          <text class="rating">评分 {{detailData.publisher.rating}}</text>
+          <text class="completed">已完成 {{detailData.publisher.completedOrders}}单</text>
+        </view>
+        <text class="time">{{detailData.createTime}}</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 行程信息详情 -->
+  <block wx:elif="{{type === 'trip' && detailData}}">
+    <view class="detail-card">
+      <view class="card-header">
+        <view class="route">
+          <view class="location-wrapper from-wrapper">
+            <text class="location from">{{detailData.fromLocation}}</text>
+          </view>
+          <view class="route-line">
+            <view class="route-line-bg"></view>
+            <view class="route-dot start"></view>
+            <view class="route-status">
+              <text class="status-text">{{detailData.flightNumber || '航班号'}}</text>
+            </view>
+            <view class="route-dot end"></view>
+          </view>
+          <view class="location-wrapper to-wrapper">
+            <text class="location to">{{detailData.toLocation}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="info-section">
+        <view class="section-title">行程信息</view>
+        <view class="info-row">
+          <text class="label">出发时间</text>
+          <text class="value">{{detailData.departureTime}}</text>
+        </view>
+        <view class="info-row" wx:if="{{detailData.arrivalTime}}">
+          <text class="label">到达时间</text>
+          <text class="value">{{detailData.arrivalTime}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">可携带重量</text>
+          <text class="value">{{detailData.availableWeight}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">可接受物品</text>
+          <text class="value">{{detailData.acceptableItems}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">捎带价格</text>
+          <text class="value">{{detailData.rewardRequirement}}</text>
+        </view>
+      </view>
+
+      <view class="info-section">
+        <view class="section-title">详细描述</view>
+        <view class="description">{{detailData.description}}</view>
+      </view>
+
+      <view class="info-section" wx:if="{{detailData.restrictions}}">
+        <view class="section-title">备注</view>
+        <view class="description">{{detailData.restrictions}}</view>
+      </view>
+
+      <view class="publisher-info">
+        <image class="avatar" src="{{detailData.traveler.avatar}}"></image>
+        <view class="publisher-detail">
+          <text class="name">{{detailData.traveler.name}}</text>
+          <text class="rating">评分 {{detailData.traveler.rating}}</text>
+          <text class="completed">已完成 {{detailData.traveler.completedOrders}}单</text>
+        </view>
+        <text class="time">{{detailData.createTime}}</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 轮播图详情 -->
+  <block wx:elif="{{detailData && detailData.title}}">
+    <view class="detail-card">
+      <image class="banner-detail-image" src="{{detailData.imageUrl}}" mode="aspectFill"></image>
+      <view class="info-section">
+        <view class="section-title">{{detailData.title}}</view>
+        <view class="description">{{detailData.content}}</view>
+      </view>
+
+      <view class="info-section">
+        <view class="info-row">
+          <text class="label">开始时间：</text>
+          <text class="value">{{detailData.startTime}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">结束时间：</text>
+          <text class="value">{{detailData.endTime}}</text>
+        </view>
+      </view>
+
+      <view class="info-section">
+        <view class="section-title">活动规则</view>
+        <view class="description">{{detailData.rules}}</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 底部操作按钮 -->
+  <view class="action-buttons" wx:if="{{!loading && (type === 'need' || type === 'trip')}}">
+    <button class="contact-btn" bindtap="onContactTap">{{type === 'need' ? '接单' : '我想捎带'}}</button>
+  </view>
+</view>

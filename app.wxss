@@ -1,0 +1,116 @@
+/**app.wxss**/
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 200rpx 0;
+  box-sizing: border-box;
+} 
+
+/* 全局基础样式 */
+page {
+  --primary-color: #3cc51f;
+  --danger-color: #ff4d4f;
+  --warning-color: #ff9800;
+  --info-color: #1e88e5;
+  --success-color: #4caf50;
+  --text-color: #333;
+  --text-color-secondary: #666;
+  --text-color-tertiary: #999;
+  --background-color: #f5f5f5;
+  --border-color: #eee;
+  --placeholder-color: #bbb;
+  
+  background-color: var(--background-color);
+  font-size: 28rpx;
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* 修复可能的聊天界面高度问题 */
+.chat-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 确保滚动区域可以正常工作 */
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 确保输入区域固定在底部 */
+.input-area {
+  position: relative;
+  width: 100%;
+  background-color: #fff;
+  border-top: 1rpx solid #eee;
+}
+
+/* 导航栏样式 */
+.tab-bar-item {
+  font-size: 32rpx !important;
+  font-weight: 500;
+  padding: 10rpx 0;
+}
+
+/* 发布按钮特殊样式 */
+.tab-bar-item:nth-child(2) {
+  color: #3cc51f !important;
+  font-size: 36rpx !important;
+  font-weight: bold;
+  position: relative;
+}
+
+.tab-bar-item:nth-child(2)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #3cc51f;
+  border-radius: 2rpx;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tab-bar-item:nth-child(2).active::after {
+  opacity: 1;
+}
+
+/* 清除默认样式 */
+button {
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  line-height: normal;
+}
+
+button::after {
+  border: none;
+}
+
+/* 地名显示统一样式 */
+.location-text {
+  color: #000 !important;
+  font-weight: 500;
+}
+
+.location-name {
+  color: #000 !important;
+  font-weight: 500;
+}
+
+.location-value {
+  color: #000 !important;
+  font-weight: 500;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.08)) !important;
+}

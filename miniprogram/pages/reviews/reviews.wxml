@@ -1,0 +1,123 @@
+<view class="container">
+  <!-- 未登录提示 -->
+  <view class="not-login-container" wx:if="{{!isLoggedIn}}">
+    <image class="not-login-icon" src="/images/default-avatar.png" mode="aspectFit"></image>
+    <view class="not-login-text">登录后查看评价</view>
+    <navigator url="/pages/profile/profile" class="login-btn">去登录</navigator>
+  </view>
+  
+  <!-- 已登录内容 -->
+  <block wx:else>
+    <!-- 标签页切换 -->
+    <view class="tabs">
+      <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">收到的评价</view>
+      <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">发出的评价</view>
+    </view>
+    
+    <!-- 收到的评价 -->
+    <view class="review-list" wx:if="{{activeTab === 0}}">
+      <view class="loading" wx:if="{{loadingReceived && receivedReviews.length === 0}}">
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+      </view>
+      
+      <view class="empty-state" wx:if="{{!loadingReceived && receivedReviews.length === 0}}">
+        <image class="empty-icon" src="/images/default-avatar.png" mode="aspectFit"></image>
+        <view class="empty-text">暂无收到的评价</view>
+      </view>
+      
+      <view class="review-item" wx:for="{{receivedReviews}}" wx:key="reviewId" bindtap="goToOrderDetail" data-id="{{item.orderId}}">
+        <view class="review-header">
+          <view class="reviewer-info">
+            <image class="user-avatar" src="{{item.user.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <view class="user-name">{{item.user.nickName || '未知用户'}}</view>
+          </view>
+          <view class="review-rating">
+            <view class="star {{getStarClass(0, item.rating)}}"></view>
+            <view class="star {{getStarClass(1, item.rating)}}"></view>
+            <view class="star {{getStarClass(2, item.rating)}}"></view>
+            <view class="star {{getStarClass(3, item.rating)}}"></view>
+            <view class="star {{getStarClass(4, item.rating)}}"></view>
+          </view>
+        </view>
+        
+        <view class="review-content">{{item.content}}</view>
+        
+        <view class="review-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+          <view class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</view>
+        </view>
+        
+        <view class="review-footer">
+          <view class="review-time">{{item.createTime}}</view>
+          <view class="review-order">订单: {{item.orderId}}</view>
+        </view>
+      </view>
+      
+      <!-- 加载更多 -->
+      <view class="loading-more" wx:if="{{loadingReceived && receivedReviews.length > 0}}">
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+      </view>
+      
+      <!-- 无更多数据 -->
+      <view class="no-more" wx:if="{{!hasMoreReceived && receivedReviews.length > 0}}">
+        没有更多评价了
+      </view>
+    </view>
+    
+    <!-- 发出的评价 -->
+    <view class="review-list" wx:if="{{activeTab === 1}}">
+      <view class="loading" wx:if="{{loadingCreated && createdReviews.length === 0}}">
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+      </view>
+      
+      <view class="empty-state" wx:if="{{!loadingCreated && createdReviews.length === 0}}">
+        <image class="empty-icon" src="/images/default-avatar.png" mode="aspectFit"></image>
+        <view class="empty-text">暂无发出的评价</view>
+      </view>
+      
+      <view class="review-item" wx:for="{{createdReviews}}" wx:key="reviewId" bindtap="goToOrderDetail" data-id="{{item.orderId}}">
+        <view class="review-header">
+          <view class="reviewer-info">
+            <image class="user-avatar" src="{{item.user.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <view class="user-name">{{item.user.nickName || '未知用户'}}</view>
+          </view>
+          <view class="review-rating">
+            <view class="star {{getStarClass(0, item.rating)}}"></view>
+            <view class="star {{getStarClass(1, item.rating)}}"></view>
+            <view class="star {{getStarClass(2, item.rating)}}"></view>
+            <view class="star {{getStarClass(3, item.rating)}}"></view>
+            <view class="star {{getStarClass(4, item.rating)}}"></view>
+          </view>
+        </view>
+        
+        <view class="review-content">{{item.content}}</view>
+        
+        <view class="review-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+          <view class="tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</view>
+        </view>
+        
+        <view class="review-footer">
+          <view class="review-time">{{item.createTime}}</view>
+          <view class="review-order">订单: {{item.orderId}}</view>
+        </view>
+      </view>
+      
+      <!-- 加载更多 -->
+      <view class="loading-more" wx:if="{{loadingCreated && createdReviews.length > 0}}">
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+        <view class="loading-dot"></view>
+      </view>
+      
+      <!-- 无更多数据 -->
+      <view class="no-more" wx:if="{{!hasMoreCreated && createdReviews.length > 0}}">
+        没有更多评价了
+      </view>
+    </view>
+  </block>
+</view> 

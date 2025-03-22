@@ -29,6 +29,20 @@ Page({
     keyboardHeight: 0, // 键盘高度
     conversationId: '', // 会话ID
     postId: '', // 发布ID
+    isVoiceMode: false,   // 语音模式标志
+    isRecording: false,   // 是否正在录音
+    recordingTime: '0"',  // 录音时长
+    willCancel: false,    // 是否取消录音
+    recorderManager: null, // 录音管理器
+    innerAudioContext: null, // 音频播放上下文
+    currentPlayingId: '', // 当前正在播放的语音消息ID
+    showQuickReply: false, // 显示快捷回复
+    quickReplies: ['谢谢', '好的', '稍等', '收到', '好久不见', '在吗？', '多少钱'], // 快捷回复列表
+    searchKeyword: '', // 搜索关键词
+    searchResults: [], // 搜索结果
+    isSearching: false, // 是否正在搜索
+    navHeight: 0, // 导航栏高度
+    searchBarHeight: 0, // 搜索框高度
   },
 
   /**
@@ -80,6 +94,57 @@ Page({
 
     // 初始化WebSocket连接
     this.connectWebSocket();
+
+    // 初始化录音管理器
+    this.initRecorder();
+    
+    // 初始化音频播放器
+    this.initAudioPlayer();
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady() {
+    // 获取导航栏高度和状态栏高度
+    const that = this;
+    wx.getSystemInfo({
+      success: function(res) {
+        const statusBarHeight = res.statusBarHeight;
+        const capsuleButton = wx.getMenuButtonBoundingClientRect();
+        const navBarHeight = (capsuleButton.top - statusBarHeight) * 2 + capsuleButton.height + statusBarHeight;
+        
+        // 设置搜索框的样式
+        that.setData({
+          navHeight: navBarHeight
+        });
+        
+        // 为message-list添加一个顶部内边距，确保不被搜索框遮挡
+        const pxToRpxRatio = 750 / res.windowWidth;
+        const searchBarHeightRpx = 72 + 32; // 搜索框高度 + 内边距
+        const totalTopOffset = (navBarHeight + searchBarHeightRpx / pxToRpxRatio);
+        
+        // 动态设置样式
+        wx.createSelectorQuery()
+          .select('.message-list')
+          .fields({ node: true, style: true }, function(res) {
+            if (res && res.node) {
+              res.node.style.paddingTop = totalTopOffset + 'px';
+            }
+          })
+          .exec();
+          
+        // 同样调整user-posts-card的顶部边距  
+        wx.createSelectorQuery()
+          .select('.user-posts-card')
+          .fields({ node: true, style: true }, function(res) {
+            if (res && res.node) {
+              res.node.style.marginTop = totalTopOffset + 'px';
+            }
+          })
+          .exec();
+      }
+    });
   },
 
   /**
@@ -567,7 +632,9 @@ Page({
     const that = this;
     
     wx.chooseLocation({
-      success: function(res) {
+      success: (res) => {
+        console.log('选择位置成功', res);
+        
         const location = {
           name: res.name,
           address: res.address,
@@ -575,36 +642,41 @@ Page({
           longitude: res.longitude
         };
         
-        // 发送位置消息
-        const messageId = Date.now().toString();
+        // 获取静态地图作为预览图
+        const mapUrl = `https://apis.map.qq.com/ws/staticmap/v2/?center=${res.latitude},${res.longitude}&zoom=15&size=300*150&maptype=roadmap&markers=color:red|${res.latitude},${res.longitude}&key=YOUR_MAP_KEY`;
+        
+        // 创建位置消息
+        const msgId = 'temp_' + Date.now();
         const message = {
-          id: messageId,
+          id: msgId,
           type: 'location',
-          content: location,
+          content: {
+            ...location,
+            cover: mapUrl
+          },
           isSelf: true,
-          time: that.formatTime(new Date()),
-          status: 'success'
+          status: 'sending',
+          timestamp: Date.now(),
+          time: this.formatTime(new Date()),
+          date: this.formatDate(new Date()),
+          read: false
         };
         
-        that.addMessageToList(message);
+        // 添加到消息列表
+        this.addMessageToList(message);
         
         // 发送消息到服务器
-        that.sendMessageToServer({
-          id: messageId,
+        this.sendMessageToServer({
           type: 'location',
-          content: location
-        });
-        
-        // 隐藏功能面板
-        that.setData({
-          showFunctionPanel: false
+          content: location,
+          tempId: msgId
         });
       },
-      fail: function(err) {
+      fail: (err) => {
         console.error('选择位置失败', err);
         if (err.errMsg !== 'chooseLocation:fail cancel') {
           wx.showToast({
-            title: '选择位置失败',
+            title: '位置选择失败',
             icon: 'none'
           });
         }
@@ -720,6 +792,25 @@ Page({
     // 清除心跳定时器
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
+    }
+    
+    // 清理录音计时器
+    this.clearRecordTimer();
+    
+    // 停止录音
+    if (this.data.isRecording) {
+      this.recorderManager.stop();
+    }
+    
+    // 释放录音管理器
+    if (this.recorderManager) {
+      // 录音管理器无需手动释放
+    }
+    
+    // 释放音频播放上下文
+    if (this.innerAudioContext) {
+      this.innerAudioContext.stop();
+      this.innerAudioContext.destroy();
     }
   },
 
@@ -1185,5 +1276,498 @@ Page({
       console.warn('WebSocket未连接，无法发送消息');
       // 可以考虑将消息存入本地缓存，等连接恢复后再发送
     }
-  }
+  },
+
+  // 初始化录音管理器
+  initRecorder() {
+    const recorderManager = wx.getRecorderManager();
+    
+    recorderManager.onStart(() => {
+      console.log('录音开始');
+      this.setData({
+        isRecording: true,
+        recordingTime: '0"',
+        willCancel: false
+      });
+      
+      // 开始计时
+      this.startRecordTimer();
+    });
+    
+    recorderManager.onStop((res) => {
+      console.log('录音结束', res);
+      this.clearRecordTimer();
+      
+      if (this.data.willCancel) {
+        console.log('取消发送语音');
+        this.setData({
+          isRecording: false,
+          willCancel: false
+        });
+        return;
+      }
+      
+      if (res.duration < 1000) {
+        wx.showToast({
+          title: '说话时间太短',
+          icon: 'none'
+        });
+        this.setData({
+          isRecording: false
+        });
+        return;
+      }
+      
+      // 发送语音消息
+      this.sendVoiceMessage(res);
+    });
+    
+    recorderManager.onError((err) => {
+      console.error('录音失败', err);
+      wx.showToast({
+        title: '录音失败: ' + err.errMsg,
+        icon: 'none'
+      });
+      this.clearRecordTimer();
+      this.setData({
+        isRecording: false,
+        willCancel: false
+      });
+    });
+    
+    this.recorderManager = recorderManager;
+  },
+  
+  // 初始化音频播放器
+  initAudioPlayer() {
+    const innerAudioContext = wx.createInnerAudioContext();
+    
+    innerAudioContext.onPlay(() => {
+      console.log('音频播放开始');
+    });
+    
+    innerAudioContext.onEnded(() => {
+      console.log('音频播放结束');
+      this.stopVoicePlaying();
+    });
+    
+    innerAudioContext.onError((err) => {
+      console.error('音频播放错误', err);
+      wx.showToast({
+        title: '播放失败',
+        icon: 'none'
+      });
+      this.stopVoicePlaying();
+    });
+    
+    this.innerAudioContext = innerAudioContext;
+  },
+  
+  // 开始录音计时
+  startRecordTimer() {
+    this.recordStartTime = Date.now();
+    this.recordTimer = setInterval(() => {
+      const duration = Math.floor((Date.now() - this.recordStartTime) / 1000);
+      this.setData({
+        recordingTime: `${duration}"`
+      });
+      
+      // 超过60秒自动停止
+      if (duration >= 60) {
+        this.endVoiceRecord();
+      }
+    }, 1000);
+  },
+  
+  // 清除录音计时器
+  clearRecordTimer() {
+    if (this.recordTimer) {
+      clearInterval(this.recordTimer);
+      this.recordTimer = null;
+    }
+  },
+  
+  // 切换语音/文本输入模式
+  toggleVoiceInput() {
+    this.setData({
+      isVoiceMode: !this.data.isVoiceMode,
+      showFunctionPanel: false
+    });
+  },
+  
+  // 开始录音
+  startVoiceRecord(e) {
+    // 检查录音权限
+    wx.authorize({
+      scope: 'scope.record',
+      success: () => {
+        this.recorderManager.start({
+          duration: 60000, // 最长60s
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          encodeBitRate: 64000,
+          format: 'mp3'
+        });
+      },
+      fail: (err) => {
+        console.error('录音授权失败', err);
+        wx.showToast({
+          title: '请授权录音权限',
+          icon: 'none'
+        });
+      }
+    });
+    
+    // 记录起始触摸位置
+    this.touchStartY = e.touches[0].clientY;
+  },
+  
+  // 移动录音按钮
+  moveVoiceRecord(e) {
+    if (!this.data.isRecording) return;
+    
+    const touchY = e.touches[0].clientY;
+    const distance = this.touchStartY - touchY;
+    
+    // 上滑超过50像素，认为是取消发送
+    const willCancel = distance > 50;
+    
+    if (willCancel !== this.data.willCancel) {
+      this.setData({
+        willCancel
+      });
+    }
+  },
+  
+  // 结束录音
+  endVoiceRecord() {
+    if (this.data.isRecording) {
+      this.recorderManager.stop();
+    }
+  },
+  
+  // 发送语音消息
+  sendVoiceMessage(res) {
+    const { tempFilePath, duration } = res;
+    
+    // 显示发送中
+    wx.showLoading({
+      title: '发送中...',
+    });
+    
+    // 上传语音文件到云存储
+    const cloudPath = `voices/${this.data.targetUserId}/${Date.now()}.mp3`;
+    
+    wx.cloud.uploadFile({
+      cloudPath,
+      filePath: tempFilePath,
+      success: res => {
+        console.log('上传语音成功', res);
+        const fileID = res.fileID;
+        
+        // 准备语音消息内容
+        const voiceContent = {
+          fileID: fileID,
+          duration: Math.floor(duration / 1000), // 转换为秒
+          path: tempFilePath
+        };
+        
+        // 创建消息对象
+        const msgId = 'temp_' + Date.now();
+        const message = {
+          id: msgId,
+          type: 'voice',
+          content: voiceContent,
+          isSelf: true,
+          status: 'sending',
+          timestamp: Date.now(),
+          time: this.formatTime(new Date()),
+          date: this.formatDate(new Date()),
+          read: false
+        };
+        
+        // 添加到消息列表
+        this.addMessageToList(message);
+        
+        // 发送消息到服务器
+        this.sendMessageToServer({
+          type: 'voice',
+          content: voiceContent,
+          tempId: msgId
+        });
+      },
+      fail: err => {
+        console.error('上传语音失败', err);
+        wx.showToast({
+          title: '语音发送失败',
+          icon: 'none'
+        });
+      },
+      complete: () => {
+        wx.hideLoading();
+        this.setData({
+          isRecording: false
+        });
+      }
+    });
+  },
+  
+  // 播放语音消息
+  playVoice(e) {
+    const { voice, id } = e.currentTarget.dataset;
+    
+    // 如果当前有正在播放的，先停止
+    if (this.data.currentPlayingId) {
+      this.stopVoicePlaying();
+    }
+    
+    // 如果点击的是当前正在播放的，则停止播放
+    if (this.data.currentPlayingId === id) {
+      return;
+    }
+    
+    const audioSrc = voice.path || voice.fileID;
+    
+    // 设置音频源
+    this.innerAudioContext.src = audioSrc;
+    
+    // 设置当前播放ID并更新UI
+    this.setData({
+      currentPlayingId: id
+    });
+    
+    // 更新消息列表中的播放状态
+    const messageList = this.data.messageList;
+    const msgIndex = messageList.findIndex(msg => msg.id === id);
+    
+    if (msgIndex !== -1) {
+      const key = `messageList[${msgIndex}].isPlaying`;
+      this.setData({
+        [key]: true
+      });
+    }
+    
+    // 开始播放
+    this.innerAudioContext.play();
+  },
+  
+  // 停止语音播放
+  stopVoicePlaying() {
+    if (!this.data.currentPlayingId) return;
+    
+    this.innerAudioContext.stop();
+    
+    // 更新消息列表中的播放状态
+    const messageList = this.data.messageList;
+    const msgIndex = messageList.findIndex(msg => msg.id === this.data.currentPlayingId);
+    
+    if (msgIndex !== -1) {
+      const key = `messageList[${msgIndex}].isPlaying`;
+      this.setData({
+        [key]: false
+      });
+    }
+    
+    this.setData({
+      currentPlayingId: ''
+    });
+  },
+  
+  // 选择文件
+  chooseFile() {
+    // 微信小程序目前只支持选择图片、视频和相机，不支持通用文件选择
+    // 这里仅作为功能示例，实际应用中需根据小程序的限制调整
+    wx.showActionSheet({
+      itemList: ['文档', '表格', '其他文件'],
+      success: (res) => {
+        // 模拟文件选择
+        const fileTypes = ['doc', 'xlsx', 'pdf'];
+        const selectedType = fileTypes[res.tapIndex];
+        
+        // 模拟文件数据
+        const mockFile = {
+          name: `示例文件.${selectedType}`,
+          size: '258KB',
+          type: selectedType,
+          url: `cloud://example/files/sample.${selectedType}`
+        };
+        
+        this.sendFileMessage(mockFile);
+      }
+    });
+  },
+  
+  // 发送文件消息
+  sendFileMessage(file) {
+    // 创建消息对象
+    const msgId = 'temp_' + Date.now();
+    const message = {
+      id: msgId,
+      type: 'file',
+      content: file,
+      isSelf: true,
+      status: 'sending',
+      timestamp: Date.now(),
+      time: this.formatTime(new Date()),
+      date: this.formatDate(new Date()),
+      read: false
+    };
+    
+    // 添加到消息列表
+    this.addMessageToList(message);
+    
+    // 模拟发送到服务器
+    setTimeout(() => {
+      this.updateMessageStatus(msgId, 'sent');
+      
+      // 模拟消息回复
+      if (this.data.simulateReply) {
+        setTimeout(() => {
+          this.simulateReply(`我收到了你的文件：${file.name}`);
+        }, 1000);
+      }
+    }, 500);
+  },
+  
+  // 打开文件
+  openFile(e) {
+    const file = e.currentTarget.dataset.file;
+    
+    wx.showToast({
+      title: '暂不支持打开此类文件',
+      icon: 'none'
+    });
+    
+    // 实际应用中，可以根据文件类型调用对应的打开方法
+    // 如果是网络文件，可以尝试使用wx.downloadFile和wx.openDocument
+  },
+  
+  // 切换快捷回复栏
+  toggleQuickReply() {
+    this.setData({
+      showQuickReply: !this.data.showQuickReply,
+      showFunctionPanel: false
+    });
+  },
+  
+  // 发送快捷回复
+  sendQuickReply(e) {
+    const reply = e.currentTarget.dataset.reply;
+    
+    // 设置输入框内容
+    this.setData({
+      inputMessage: reply,
+      showQuickReply: false
+    });
+    
+    // 直接发送
+    this.sendMessage();
+  },
+  
+  // 打开位置
+  openLocation(e) {
+    const location = e.currentTarget.dataset.location;
+    
+    wx.openLocation({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      name: location.name,
+      address: location.address,
+      scale: 18
+    });
+  },
+  
+  // 更新未读状态
+  updateMessageRead(messageId) {
+    // 查找消息
+    const messageList = this.data.messageList;
+    const msgIndex = messageList.findIndex(msg => msg.id === messageId);
+    
+    if (msgIndex !== -1 && !messageList[msgIndex].read) {
+      // 更新已读状态
+      const key = `messageList[${msgIndex}].read`;
+      this.setData({
+        [key]: true
+      });
+      
+      // 调用云函数更新服务器端状态
+      wx.cloud.callFunction({
+        name: 'updateMessageRead',
+        data: {
+          messageId
+        }
+      }).then(res => {
+        console.log('更新消息已读状态成功', res);
+      }).catch(err => {
+        console.error('更新消息已读状态失败', err);
+      });
+    }
+  },
+  
+  // 收到新消息时的处理
+  onNewMessage(message) {
+    // ... existing code ...
+    
+    // 更新消息未读状态
+    if (!message.isSelf && message.status !== 'read') {
+      // 通知服务器消息已读
+      this.updateMessageRead(message.id);
+    }
+    
+    // ... existing code ...
+  },
+
+  /**
+   * 搜索输入处理
+   */
+  onSearchInput(e) {
+    this.setData({
+      searchKeyword: e.detail.value
+    });
+  },
+  
+  /**
+   * 搜索消息
+   */
+  searchMessages() {
+    const keyword = this.data.searchKeyword.trim();
+    if (!keyword) {
+      return;
+    }
+    
+    this.setData({
+      isSearching: true
+    });
+    
+    // 在消息列表中搜索关键词
+    const results = this.data.messageList.filter(msg => {
+      if (msg.type === 'text' && msg.content) {
+        return msg.content.indexOf(keyword) > -1;
+      }
+      return false;
+    });
+    
+    this.setData({
+      searchResults: results,
+      isSearching: false
+    });
+    
+    // 如果有搜索结果，滚动到第一条匹配的消息
+    if (results.length > 0) {
+      this.setData({
+        scrollToMessage: `msg-${results[0].id}`
+      });
+      
+      // 高亮显示搜索结果
+      wx.showToast({
+        title: `找到 ${results.length} 条匹配消息`,
+        icon: 'none'
+      });
+    } else {
+      wx.showToast({
+        title: '未找到匹配内容',
+        icon: 'none'
+      });
+    }
+  },
 })

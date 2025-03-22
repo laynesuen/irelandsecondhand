@@ -224,12 +224,18 @@ Page({
   
   // 点击搜索按钮
   onSearchTap: function() {
-    this.performSearch();
+    // 跳转到高级搜索页面
+    wx.navigateTo({
+      url: '/pages/search/search?keyword=' + encodeURIComponent(this.data.searchKeyword)
+    });
   },
   
   // 搜索确认（回车键）
   onSearchConfirm: function() {
-    this.performSearch();
+    // 跳转到高级搜索页面
+    wx.navigateTo({
+      url: '/pages/search/search?keyword=' + encodeURIComponent(this.data.searchKeyword)
+    });
   },
   
   // 执行搜索
@@ -320,31 +326,6 @@ Page({
   onPublishTap: function() {
     wx.switchTab({
       url: '/pages/publish-menu/publish-menu'
-    });
-  },
-  
-  // 测试云函数
-  testCloudFunction() {
-    wx.cloud.callFunction({
-      name: 'messageNotify',
-      data: {
-        action: 'sendSystemNotification',
-        title: '测试通知',
-        content: '这是一条测试通知',
-        userId: 'test_user_id'
-      }
-    }).then(res => {
-      console.log('云函数调用成功：', res);
-      wx.showToast({
-        title: '通知发送成功',
-        icon: 'success'
-      });
-    }).catch(err => {
-      console.error('云函数调用失败：', err);
-      wx.showToast({
-        title: '通知发送失败',
-        icon: 'error'
-      });
     });
   }
 })

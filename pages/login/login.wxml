@@ -1,2 +1,45 @@
 <!--pages/login/login.wxml-->
-<text>pages/login/login.wxml</text>
+<view class="login-container">
+  <view class="logo-container">
+    <image class="logo" src="/images/logo.png" mode="aspectFit"></image>
+    <view class="title">爱岛捎带</view>
+    <view class="subtitle">爱尔兰二手闲置交易平台</view>
+  </view>
+
+  <view class="form-container">
+    <view class="input-group">
+      <view class="input-label">手机号码 / 邮箱</view>
+      <input class="input" type="text" placeholder="请输入手机号码或邮箱" bindinput="onUsernameInput" value="{{username}}"/>
+    </view>
+    
+    <view class="input-group">
+      <view class="input-label">密码</view>
+      <input class="input" password="true" placeholder="请输入密码" bindinput="onPasswordInput" value="{{password}}"/>
+    </view>
+
+    <view class="actions">
+      <view class="forgot-password" bindtap="navigateToResetPassword">忘记密码?</view>
+    </view>
+
+    <button class="login-btn {{loginEnabled ? '' : 'disabled'}}" bindtap="login">登录</button>
+    
+    <view class="divider">
+      <view class="line"></view>
+      <view class="divider-text">或</view>
+      <view class="line"></view>
+    </view>
+    
+    <button class="wechat-login-btn" bindtap="wechatLogin">
+      <image class="wechat-icon" src="/images/wechat-icon.png"></image>
+      微信一键登录
+    </button>
+  </view>
+
+  <view class="register-prompt">
+    没有账号? <text class="register-link" bindtap="navigateToRegister">立即注册</text>
+  </view>
+
+  <view class="agreement-text">
+    登录即表示您同意<text class="link" bindtap="navigateToUserAgreement">用户协议</text>和<text class="link" bindtap="navigateToPrivacyPolicy">隐私政策</text>
+  </view>
+</view>

@@ -1,5 +1,3 @@
-const cloud = require('wx-server-sdk');
-
 /**
  * 发送支付成功通知
  * @param {String} orderId 订单ID
@@ -7,7 +5,7 @@ const cloud = require('wx-server-sdk');
  * @param {String} paymentMethod 支付方式
  * @returns {Promise} 返回通知结果
  */
-export const sendPaymentSuccessNotification = async (orderId, amount, paymentMethod, userId) => {
+const sendPaymentSuccessNotification = async (orderId, amount, paymentMethod, userId) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'notification',
@@ -21,12 +19,18 @@ export const sendPaymentSuccessNotification = async (orderId, amount, paymentMet
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('发送支付成功通知失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '发送通知失败'
+    };
   }
 };
 
@@ -37,7 +41,7 @@ export const sendPaymentSuccessNotification = async (orderId, amount, paymentMet
  * @param {String} location 当前位置
  * @returns {Promise} 返回通知结果
  */
-export const sendLogisticsUpdateNotification = async (orderId, status, location, userId) => {
+const sendLogisticsUpdateNotification = async (orderId, status, location, userId) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'notification',
@@ -51,12 +55,18 @@ export const sendLogisticsUpdateNotification = async (orderId, status, location,
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('发送物流状态更新通知失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '发送通知失败'
+    };
   }
 };
 
@@ -66,7 +76,7 @@ export const sendLogisticsUpdateNotification = async (orderId, status, location,
  * @param {String} receiver 收件人
  * @returns {Promise} 返回通知结果
  */
-export const sendPackageReceivedNotification = async (orderId, receiver, userId) => {
+const sendPackageReceivedNotification = async (orderId, receiver, userId) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'notification',
@@ -79,12 +89,18 @@ export const sendPackageReceivedNotification = async (orderId, receiver, userId)
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('发送包裹签收通知失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '发送通知失败'
+    };
   }
 };
 
@@ -95,23 +111,31 @@ export const sendPackageReceivedNotification = async (orderId, receiver, userId)
  * @param {Number} pageSize 每页数量
  * @returns {Promise} 返回通知列表
  */
-export const getUserNotifications = async (page = 1, pageSize = 20) => {
+const getUserNotifications = async (userId, page = 1, pageSize = 20) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'notification',
       data: {
+        action: 'getUserNotifications',
+        userId,
         page,
         pageSize
       }
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('获取通知列表失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '获取通知失败'
+    };
   }
 };
 
@@ -120,7 +144,7 @@ export const getUserNotifications = async (page = 1, pageSize = 20) => {
  * @param {String} notificationId 通知ID
  * @returns {Promise} 返回更新结果
  */
-export const markNotificationAsRead = async (notificationId) => {
+const markNotificationAsRead = async (notificationId) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'notification',
@@ -131,12 +155,18 @@ export const markNotificationAsRead = async (notificationId) => {
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('标记通知已读失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '标记已读失败'
+    };
   }
 };
 

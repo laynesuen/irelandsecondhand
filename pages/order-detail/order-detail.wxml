@@ -28,6 +28,11 @@
     <view class="estimated-arrival">预计到达：{{logisticsStatus.estimatedArrival}}</view>
   </view>
   
+  <!-- 物流跟踪按钮 -->
+  <view class="logistics-actions">
+    <button class="track-btn" bindtap="goToLogisticsTracking">查看物流跟踪</button>
+  </view>
+  
   <!-- 快递单号更新 -->
   <view class="tracking-number-update">
     <input type="text" 

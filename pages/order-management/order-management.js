@@ -295,7 +295,7 @@ Page({
     
     if (order) {
       wx.navigateTo({
-        url: `/pages/detail/detail?id=${id}&type=${order.orderType}`
+        url: `/pages/order-detail/order-detail?id=${id}`
       });
     }
   },
@@ -366,7 +366,7 @@ Page({
     
     if (order) {
       wx.navigateTo({
-        url: `/pages/detail/detail?id=${id}&type=${order.orderType}`
+        url: `/pages/order-detail/order-detail?id=${id}`
       });
     }
   },

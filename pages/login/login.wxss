@@ -1,1 +1,159 @@
 /* pages/login/login.wxss */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 40rpx;
+  background-color: #fff;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 0;
+}
+
+.logo {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.subtitle {
+  font-size: 30rpx;
+  color: #888;
+}
+
+.form-container {
+  margin-top: 40rpx;
+}
+
+.input-group {
+  margin-bottom: 40rpx;
+}
+
+.input-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+}
+
+.input {
+  width: 100%;
+  height: 88rpx;
+  background-color: #f5f7fa;
+  border-radius: 12rpx;
+  padding: 0 30rpx;
+  font-size: 30rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 40rpx;
+}
+
+.forgot-password {
+  font-size: 26rpx;
+  color: #4caf50;
+}
+
+.login-btn {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(to right, #4caf50, #2e7d32);
+  color: white;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+  border: none;
+}
+
+.login-btn::after {
+  border: none;
+}
+
+.login-btn.disabled {
+  background: linear-gradient(to right, #a5d6a7, #81c784);
+  opacity: 0.7;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 40rpx 0;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background-color: #e0e0e0;
+}
+
+.divider-text {
+  padding: 0 20rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.wechat-login-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #07c160;
+  color: white;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+  border: none;
+}
+
+.wechat-login-btn::after {
+  border: none;
+}
+
+.wechat-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+
+.register-prompt {
+  text-align: center;
+  font-size: 28rpx;
+  color: #666;
+  margin-top: 40rpx;
+}
+
+.register-link {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.agreement-text {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  margin-top: 40rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.link {
+  color: #4caf50;
+}

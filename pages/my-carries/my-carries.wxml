@@ -47,25 +47,31 @@
           </view>
           
           <view class="carry-detail">
-            <view class="detail-row">
-              <text class="detail-label">报酬：</text>
-              <text class="detail-value price">€{{item.reward}}</text>
-            </view>
-            <view class="detail-row">
-              <text class="detail-label">物品：</text>
-              <text class="detail-value">{{item.itemType}}</text>
-            </view>
-            <view class="detail-row">
-              <text class="detail-label">重量：</text>
-              <text class="detail-value">{{item.weight}}</text>
-            </view>
-            <view class="detail-row">
-              <text class="detail-label">尺寸：</text>
-              <text class="detail-value">{{item.size || '标准尺寸'}}</text>
-            </view>
-            <view class="detail-row">
-              <text class="detail-label">期望时间：</text>
-              <text class="detail-value">{{item.expectedTime}}</text>
+            <view class="detail-grid">
+              <view class="detail-column">
+                <view class="detail-row">
+                  <text class="detail-label">报酬：</text>
+                  <text class="detail-value price">€{{item.reward}}</text>
+                </view>
+                <view class="detail-row">
+                  <text class="detail-label">物品：</text>
+                  <text class="detail-value item">{{item.itemType}}</text>
+                </view>
+                <view class="detail-row">
+                  <text class="detail-label">期望时间：</text>
+                  <text class="detail-value time">{{item.expectedTime}}</text>
+                </view>
+              </view>
+              <view class="detail-column">
+                <view class="detail-row">
+                  <text class="detail-label">重量：</text>
+                  <text class="detail-value weight">{{item.weight}}</text>
+                </view>
+                <view class="detail-row">
+                  <text class="detail-label">尺寸：</text>
+                  <text class="detail-value size">{{item.size || '标准尺寸'}}</text>
+                </view>
+              </view>
             </view>
           </view>
         </view>

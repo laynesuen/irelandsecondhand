@@ -25,15 +25,27 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    const { id } = options;
+    // 从options中获取订单ID，兼容id和orderId两种参数名
+    const orderId = options.id || options.orderId;
+    
+    if (!orderId) {
+      wx.showToast({
+        title: '订单ID不存在',
+        icon: 'none'
+      });
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+      return;
+    }
     
     // 设置订单ID
     this.setData({
-      orderId: id,
+      orderId: orderId,
       loading: true
     });
     
-    console.log('加载订单详情，ID:', id);
+    console.log('加载订单详情，ID:', orderId);
     
     // 加载订单详情
     this.loadOrderDetail();
@@ -285,24 +297,17 @@ Page({
                   signType: payParams.signType,
                   paySign: payParams.paySign,
                   success: (payRes) => {
-                    // 支付成功，更新订单状态
-                    wx.showToast({
-                      title: '支付成功',
-                      icon: 'success'
+                    // 支付成功，跳转到支付结果页面
+                    wx.redirectTo({
+                      url: `/pages/payment-result/payment-result?status=success&orderId=${this.data.orderId}&transactionId=${payParams.transactionId || ''}&amount=${amount.toFixed(2)}&method=微信支付&type=${this.data.orderData.orderType || 'order'}`
                     });
-                    
-                    // 重新加载订单详情
-                    setTimeout(() => {
-                      this.loadOrderDetail();
-                    }, 1500);
                   },
                   fail: (payErr) => {
                     // 支付失败或用户取消
                     if (payErr.errMsg !== 'requestPayment:fail cancel') {
                       // 非用户取消的失败
-                      wx.showToast({
-                        title: '支付失败，请重试',
-                        icon: 'none'
+                      wx.redirectTo({
+                        url: `/pages/payment-result/payment-result?status=fail&orderId=${this.data.orderId}&amount=${amount.toFixed(2)}&method=微信支付&reason=${encodeURIComponent('支付过程中出现错误')}&type=${this.data.orderData.orderType || 'order'}`
                       });
                     } else {
                       // 用户取消
@@ -369,15 +374,20 @@ Page({
   // 处理支付
   async handlePayment() {
     try {
-      const { orderId, amount } = this.data;
+      const { orderId, orderData } = this.data;
       const { selectedPaymentMethod } = this.data;
       
-      const res = await paymentApi.createPayment(orderId, amount, selectedPaymentMethod.id);
+      const res = await paymentApi.createPayment(
+        orderId, 
+        orderData.totalAmount, 
+        selectedPaymentMethod.id
+      );
+      
       if (res.success) {
         // 发送支付成功通知
         await notificationApi.sendPaymentSuccessNotification(
           orderId,
-          amount,
+          orderData.totalAmount,
           selectedPaymentMethod.id
         );
         
@@ -388,6 +398,11 @@ Page({
         
         // 刷新订单状态
         this.loadOrderDetail();
+      } else {
+        wx.showToast({
+          title: res.message || '支付失败',
+          icon: 'error'
+        });
       }
     } catch (error) {
       console.error('支付失败:', error);
@@ -429,9 +444,17 @@ Page({
       console.error('更新快递单号失败:', error);
       wx.showToast({
         title: '更新失败',
-        icon: 'error'
+        icon: 'none'
       });
     }
+  },
+  
+  // 跳转到物流跟踪页面
+  goToLogisticsTracking() {
+    const { orderId } = this.data;
+    wx.navigateTo({
+      url: `/pages/logistics-tracking/logistics-tracking?orderId=${orderId}`
+    });
   },
 
   // 加载通知列表

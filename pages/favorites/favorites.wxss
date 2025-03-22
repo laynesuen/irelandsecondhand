@@ -253,9 +253,22 @@
 .action-btn.explore {
   background: linear-gradient(135deg, #3cc51f, #4cd964);
   color: white;
-  font-size: 26rpx;
-  padding: 12rpx 60rpx;
+  font-size: 30rpx;
+  padding: 16rpx 60rpx;
   border-radius: 30rpx;
   box-shadow: 0 4rpx 12rpx rgba(60, 197, 31, 0.2);
   transition: all 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  min-width: 200rpx;
+  text-align: center;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.action-btn.explore:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 8rpx rgba(60, 197, 31, 0.15);
 } 

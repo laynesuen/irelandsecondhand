@@ -1,0 +1,99 @@
+<view class="container">
+  <view class="header">
+    <view class="title">{{pageTitle}}</view>
+    <view class="subtitle">{{pageSubtitle}}</view>
+  </view>
+
+  <!-- 未登录状态 -->
+  <block wx:if="{{!isLoggedIn}}">
+    <view class="login-prompt">
+      <image class="login-icon" src="/images/user-default.png" mode="aspectFit"></image>
+      <view class="login-text">{{t('verification.message.needLogin')}}</view>
+      <button class="btn-primary" bindtap="goToLogin">{{goLoginBtn}}</button>
+    </view>
+  </block>
+
+  <!-- 已登录状态 -->
+  <block wx:else>
+    <!-- 加载中 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading"></view>
+    </view>
+
+    <!-- 已认证状态 -->
+    <block wx:elif="{{verificationStatus === 'verified'}}">
+      <view class="verified-container">
+        <image class="verified-icon" src="/images/verified.png" mode="aspectFit"></image>
+        <view class="verified-text">{{verifiedText}}</view>
+      </view>
+    </block>
+    
+    <!-- 认证进行中 -->
+    <block wx:elif="{{verificationStatus === 'inProgress'}}">
+      <view class="verification-status">
+        <view class="status-icon in-progress"></view>
+        <view class="status-text">{{inProgressText}}</view>
+      </view>
+    </block>
+
+    <!-- 未认证状态 -->
+    <block wx:else>
+      <!-- 步骤引导 -->
+      <view class="steps">
+        <view class="step {{stepIndex >= index ? 'active' : ''}}" wx:for="{{steps}}" wx:key="title">
+          <view class="step-number">{{index + 1}}</view>
+          <view class="step-info">
+            <view class="step-title">{{item.title}}</view>
+            <view class="step-desc">{{item.desc}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 认证说明 -->
+      <view class="info-section" wx:if="{{stepIndex === 0}}">
+        <view class="info-title">{{t('verification.info.title')}}</view>
+        <view class="info-item">
+          <view class="info-bullet"></view>
+          <view class="info-text">{{t('verification.info.item1')}}</view>
+        </view>
+        <view class="info-item">
+          <view class="info-bullet"></view>
+          <view class="info-text">{{t('verification.info.item2')}}</view>
+        </view>
+        <view class="info-item">
+          <view class="info-bullet"></view>
+          <view class="info-text">{{t('verification.info.item3')}}</view>
+        </view>
+        <view class="info-item">
+          <view class="info-bullet"></view>
+          <view class="info-text">{{t('verification.info.item4')}}</view>
+        </view>
+      </view>
+
+      <!-- 认证方式 -->
+      <view class="method-section" wx:if="{{stepIndex === 0}}">
+        <view class="method-title">{{t('verification.method.title')}}</view>
+        <view class="method-item" bindtap="startVerification">
+          <image class="method-icon" src="/images/wechat.png" mode="aspectFit"></image>
+          <view class="method-info">
+            <view class="method-name">{{t('verification.method.wechat')}}</view>
+            <view class="method-desc">{{t('verification.method.wechatDesc')}}</view>
+          </view>
+          <view class="method-arrow"></view>
+        </view>
+      </view>
+
+      <!-- 错误信息 -->
+      <view class="error-message" wx:if="{{error}}">{{error}}</view>
+
+      <!-- 操作按钮 -->
+      <view class="action-buttons" wx:if="{{stepIndex === 0}}">
+        <button class="btn-primary" bindtap="startVerification">{{startVerifyBtn}}</button>
+      </view>
+    </block>
+  </block>
+
+  <view class="footer">
+    <view class="tips">如有认证问题，请联系客服</view>
+  </view>
+</view> 

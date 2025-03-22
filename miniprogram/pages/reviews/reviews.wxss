@@ -1,0 +1,213 @@
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background-color: #f7f7f7;
+}
+
+/* 未登录提示样式 */
+.not-login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.not-login-icon {
+  width: 150rpx;
+  height: 150rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.6;
+}
+
+.not-login-text {
+  font-size: 32rpx;
+  color: #888;
+  margin-bottom: 40rpx;
+}
+
+.login-btn {
+  padding: 16rpx 60rpx;
+  background-color: #07c160;
+  color: white;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+}
+
+/* 标签页样式 */
+.tabs {
+  display: flex;
+  background-color: white;
+  border-radius: 10rpx;
+  margin-bottom: 20rpx;
+  padding: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab.active {
+  color: #07c160;
+  font-weight: bold;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  width: 40%;
+  height: 4rpx;
+  background-color: #07c160;
+  border-radius: 2rpx;
+}
+
+/* 评论列表样式 */
+.review-list {
+  padding-bottom: 40rpx;
+}
+
+.review-item {
+  background-color: white;
+  border-radius: 10rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.reviewer-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.user-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.review-rating {
+  display: flex;
+}
+
+.star {
+  width: 30rpx;
+  height: 30rpx;
+  margin-left: 6rpx;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB0PSIxNjU4OTkxNzcwMTgzIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjUxMjMiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48cGF0aCBkPSJNOTA4LjEgMzUzLjFsLTI1My45LTM2LjljLTUuMy0wLjgtOS44LTQuMi0xMi4yLTguOS0wLjEtMC4yLTAuMi0wLjMtMC4zLTAuNUw1MjQgNzIuMWMtNi4xLTEyLjQtMTguMy0yMC4zLTMyLTIwLjMtMTMuNyAwLTI1LjkgNy45LTMyIDIwLjNsLTExNy43IDIzNC43Yy0yLjQgNC45LTcuMSA4LjMtMTIuNSA5LjFMMzMuOSAzNTMuMWMtMTMuMSAxLjktMjQuLjMgMTAuNS0yOS40IDIyLjgtNC45IDEyLjMtMi4yIDI2LjMgNy4yIDM2LjFsMTgzLjkgMTc5LjFjMy45IDMuOCA1LjcgOS40IDQuNyAxNC44TDE1NSA4NTYuNWMtMi4yIDEzLjEgMi45IDI2LjIgMTMuNSAzNC4xIDEwLjMgNy43IDI0LjIgOC43IDM1LjUgMi41bDIyNy4yLTExOS40YzQuOC0yLjYgMTAuNy0yLjYgMTUuNSAwbDIyNy4yIDExOS40YzExLjMgNi4yIDI1LjEgNS4xIDM1LjUtMi41IDEwLjYtNy45IDE1LjctMjEgMTMuNS0zNC4xTDY3Ni43IDYwNi4xYy0xLTUuNC0wLjEtMTAuOSAzLjktMTQuOGwxODMuOS0xNzkuMWM5LjQtOS43IDEyLjItMjMuOCA3LjItMzYuMXMtMTYuMy0yMC45LTI5LjYtMjN6IiBwLWlkPSI1MTI0IiBmaWxsPSIjY2RjZGNkIj48L3BhdGg+PC9zdmc+');
+  background-size: cover;
+}
+
+.star.full {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB0PSIxNjU4OTkxNzcwMTgzIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjUxMjMiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48cGF0aCBkPSJNOTA4LjEgMzUzLjFsLTI1My45LTM2LjljLTUuMy0wLjgtOS44LTQuMi0xMi4yLTguOS0wLjEtMC4yLTAuMi0wLjMtMC4zLTAuNUw1MjQgNzIuMWMtNi4xLTEyLjQtMTguMy0yMC4zLTMyLTIwLjMtMTMuNyAwLTI1LjkgNy45LTMyIDIwLjNsLTExNy43IDIzNC43Yy0yLjQgNC45LTcuMSA4LjMtMTIuNSA5LjFMMzMuOSAzNTMuMWMtMTMuMSAxLjktMjQuLjMgMTAuNS0yOS40IDIyLjgtNC45IDEyLjMtMi4yIDI2LjMgNy4yIDM2LjFsMTgzLjkgMTc5LjFjMy45IDMuOCA1LjcgOS40IDQuNyAxNC44TDE1NSA4NTYuNWMtMi4yIDEzLjEgMi45IDI2LjIgMTMuNSAzNC4xIDEwLjMgNy43IDI0LjIgOC43IDM1LjUgMi41bDIyNy4yLTExOS40YzQuOC0yLjYgMTAuNy0yLjYgMTUuNSAwbDIyNy4yIDExOS40YzExLjMgNi4yIDI1LjEgNS4xIDM1LjUtMi41IDEwLjYtNy45IDE1LjctMjEgMTMuNS0zNC4xTDY3Ni43IDYwNi4xYy0xLTUuNC0wLjEtMTAuOSAzLjktMTQuOGwxODMuOS0xNzkuMWM5LjQtOS43IDEyLjItMjMuOCA3LjItMzYuMXMtMTYuMy0yMC45LTI5LjYtMjN6IiBwLWlkPSI1MTI0IiBmaWxsPSIjZmFiZTE1Ij48L3BhdGg+PC9zdmc+');
+}
+
+.review-content {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
+
+.review-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20rpx;
+}
+
+.tag {
+  padding: 6rpx 20rpx;
+  background-color: #f0f8f4;
+  color: #07c160;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  margin-right: 16rpx;
+  margin-bottom: 10rpx;
+}
+
+.review-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 加载与空状态样式 */
+.loading, .loading-more {
+  display: flex;
+  justify-content: center;
+  padding: 30rpx 0;
+}
+
+.loading-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background-color: #07c160;
+  margin: 0 8rpx;
+  animation: dot-animation 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes dot-animation {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  } 
+  40% { 
+    transform: scale(1.0);
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0;
+}
+
+.empty-icon {
+  width: 150rpx;
+  height: 150rpx;
+  opacity: 0.4;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.no-more {
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+  padding: 20rpx 0;
+} 

@@ -1,0 +1,123 @@
+<view class="container">
+  <!-- 未登录提示 -->
+  <view class="not-login-container" wx:if="{{!isLoggedIn}}">
+    <image class="not-login-icon" src="/images/order.png" mode="aspectFit"></image>
+    <view class="not-login-text">登录后查看您的订单</view>
+    <navigator url="/pages/profile/profile" class="login-btn">去登录</navigator>
+  </view>
+
+  <!-- 已登录内容 -->
+  <block wx:else>
+    <!-- 筛选栏 -->
+    <view class="filter-bar">
+      <scroll-view scroll-x="true" class="filter-scroll">
+        <!-- 角色筛选 -->
+        <view class="filter-group">
+          <view 
+            wx:for="{{['all', 'customer', 'carrier']}}" 
+            wx:key="*this"
+            class="filter-item {{roleFilter === item ? 'active' : ''}}"
+            bindtap="onRoleFilterChange"
+            data-role="{{item}}">
+            {{roleMap[item]}}
+          </view>
+        </view>
+        
+        <!-- 状态筛选 -->
+        <view class="filter-group">
+          <view 
+            wx:for="{{['all', 'pending', 'confirmed', 'rejected', 'completed', 'cancelled']}}" 
+            wx:key="*this"
+            class="filter-item {{statusFilter === item ? 'active' : ''}}"
+            bindtap="onStatusFilterChange"
+            data-status="{{item}}">
+            {{statusMap[item]}}
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+
+    <!-- 订单列表 -->
+    <view class="order-list" wx:if="{{!loading && orders.length > 0}}">
+      <view 
+        wx:for="{{orders}}" 
+        wx:key="orderId"
+        class="order-item"
+        bindtap="goToOrderDetail"
+        data-id="{{item.orderId}}">
+        
+        <!-- 订单头部信息 -->
+        <view class="order-header">
+          <view class="order-role">
+            <text class="role-tag">{{item.userRole === 'customer' ? '我发起的' : '我承运的'}}</text>
+          </view>
+          <view class="order-status" style="color: {{getStatusColor(item.status)}}">
+            {{statusMap[item.status]}}
+          </view>
+        </view>
+        
+        <!-- 行程信息 -->
+        <view class="trip-info" wx:if="{{item.trip}}">
+          <view class="trip-route">
+            <text class="trip-city">{{item.trip.fromCity}}</text>
+            <text class="trip-arrow">→</text>
+            <text class="trip-city">{{item.trip.toCity}}</text>
+          </view>
+          <view class="trip-date">{{item.trip.date}}</view>
+        </view>
+        
+        <!-- 订单详情 -->
+        <view class="order-info">
+          <view class="info-row">
+            <text class="info-label">订单金额:</text>
+            <text class="info-value price">€{{item.price}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">物品重量:</text>
+            <text class="info-value">{{item.totalWeight}}kg</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">创建时间:</text>
+            <text class="info-value">{{item.createTime}}</text>
+          </view>
+        </view>
+        
+        <!-- 用户信息 -->
+        <view class="user-info" wx:if="{{item.counterpart}}">
+          <image class="user-avatar" src="{{item.counterpart.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <text class="user-name">{{item.counterpart.nickName || '未知用户'}}</text>
+        </view>
+        
+        <view class="order-footer">
+          <view class="see-detail">查看详情 ></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="loading-more" wx:if="{{loadingMore}}">
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+
+    <!-- 无更多数据 -->
+    <view class="no-more" wx:if="{{!hasMore && orders.length > 0 && !loadingMore}}">
+      没有更多订单了
+    </view>
+
+    <!-- 空订单列表 -->
+    <view class="empty-orders" wx:if="{{!loading && orders.length === 0}}">
+      <image class="empty-icon" src="/images/empty-order.png" mode="aspectFit"></image>
+      <view class="empty-text">暂无订单</view>
+      <view class="empty-tip">可在行程详情页创建订单</view>
+    </view>
+  </block>
+</view> 

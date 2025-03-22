@@ -1,5 +1,11 @@
 const db = wx.cloud.database()
 
+// 数据库集合引用
+const usersCollection = db.collection('users');
+const ordersCollection = db.collection('orders');
+const messagesCollection = db.collection('messages');
+const paymentsCollection = db.collection('payments');
+
 // 数据库操作工具类
 const DB = {
   // 用户相关操作
@@ -200,4 +206,11 @@ const DB = {
   }
 }
 
-module.exports = DB 
+// 导出数据库操作工具和集合引用
+module.exports = {
+  ...DB,
+  usersCollection,
+  ordersCollection,
+  messagesCollection,
+  paymentsCollection
+} 

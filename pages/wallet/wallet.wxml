@@ -21,6 +21,10 @@
       <view class="tab {{activeTab === 'income' ? 'active' : ''}}" bindtap="switchTab" data-type="income">收入</view>
       <view class="tab {{activeTab === 'expense' ? 'active' : ''}}" bindtap="switchTab" data-type="expense">支出</view>
     </view>
+    
+    <view class="transactions-actions">
+      <button class="action-btn export-btn" bindtap="exportTransactions">导出记录</button>
+    </view>
 
     <view class="transaction-list">
       <block wx:if="{{transactions.length > 0}}">
@@ -31,7 +35,10 @@
           </view>
           <view class="transaction-right">
             <view class="transaction-amount {{item.amount.indexOf('-') === 0 ? 'negative' : 'positive'}}">{{item.amount}}</view>
-            <view class="transaction-status">{{item.statusText}}</view>
+            <view class="transaction-status">
+              <text class="status-text {{item.status}}">{{item.statusText}}</text>
+              <text class="arrow-icon">></text>
+            </view>
           </view>
         </view>
       </block>

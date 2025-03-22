@@ -361,4 +361,197 @@ function generateSign(data) {
     .update(signStr)
     .digest('hex')
     .toUpperCase();
-} 
+}
+
+/**
+ * 申请退款
+ */
+exports.applyRefund = async (event, context) => {
+  const { transactionId, orderId, refundType, refundAmount, refundReason, description, images } = event;
+  const { OPENID } = cloud.getWXContext();
+
+  try {
+    // 1. 验证订单信息
+    const order = await db.collection('orders')
+      .where({
+        _id: orderId
+      })
+      .get();
+
+    if (!order.data.length) {
+      return {
+        success: false,
+        message: '订单不存在'
+      };
+    }
+
+    // 2. 验证是否已申请过退款
+    const existingRefund = await db.collection('refunds')
+      .where({
+        orderId: orderId,
+        status: _.neq('rejected')
+      })
+      .get();
+
+    if (existingRefund.data.length > 0) {
+      return {
+        success: false,
+        message: '该订单已有退款申请，请勿重复提交'
+      };
+    }
+
+    // 3. 验证退款金额
+    const payment = await db.collection('payments')
+      .where({
+        orderId: orderId,
+        status: 'success'
+      })
+      .get();
+
+    if (!payment.data.length) {
+      return {
+        success: false,
+        message: '未找到成功的支付记录'
+      };
+    }
+
+    const paidAmount = payment.data[0].amount;
+    
+    if (parseFloat(refundAmount) > paidAmount) {
+      return {
+        success: false,
+        message: '退款金额不能大于支付金额'
+      };
+    }
+
+    // 4. 创建退款申请
+    const refundData = {
+      orderId,
+      transactionId: payment.data[0]._id,
+      userId: OPENID,
+      refundType,
+      refundAmount: parseFloat(refundAmount),
+      originalAmount: paidAmount,
+      refundReason,
+      description: description || '',
+      images: images || [],
+      status: 'pending',
+      createTime: db.serverDate(),
+      updateTime: db.serverDate()
+    };
+
+    const refundResult = await db.collection('refunds').add({
+      data: refundData
+    });
+
+    // 5. 更新订单状态
+    await db.collection('orders')
+      .doc(orderId)
+      .update({
+        data: {
+          hasRefundRequest: true,
+          refundStatus: 'pending'
+        }
+      });
+
+    // 6. 发送退款申请通知
+    await cloud.callFunction({
+      name: 'messageNotify',
+      data: {
+        action: 'sendRefundNotification',
+        orderId,
+        refundId: refundResult._id,
+        refundAmount,
+        userId: OPENID
+      }
+    });
+
+    return {
+      success: true,
+      data: {
+        refundId: refundResult._id
+      },
+      message: '退款申请提交成功'
+    };
+  } catch (error) {
+    console.error('退款申请失败', error);
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+/**
+ * 获取退款状态
+ */
+exports.getRefundStatus = async (event, context) => {
+  const { refundId } = event;
+  const { OPENID } = cloud.getWXContext();
+
+  try {
+    const refund = await db.collection('refunds')
+      .doc(refundId)
+      .get();
+
+    if (!refund.data) {
+      return {
+        success: false,
+        message: '退款申请不存在'
+      };
+    }
+
+    return {
+      success: true,
+      data: refund.data
+    };
+  } catch (error) {
+    console.error('获取退款状态失败', error);
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+/**
+ * 获取交易详情
+ */
+exports.getTransactionDetail = async (event, context) => {
+  const { transactionId } = event;
+  const { OPENID } = cloud.getWXContext();
+
+  try {
+    const transaction = await db.collection('payments')
+      .doc(transactionId)
+      .get();
+
+    if (!transaction.data) {
+      return {
+        success: false,
+        message: '交易记录不存在'
+      };
+    }
+
+    // 获取关联订单信息
+    const order = await db.collection('orders')
+      .where({
+        _id: transaction.data.orderId
+      })
+      .get();
+
+    return {
+      success: true,
+      data: {
+        ...transaction.data,
+        order: order.data.length > 0 ? order.data[0] : null
+      }
+    };
+  } catch (error) {
+    console.error('获取交易详情失败', error);
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+}; 

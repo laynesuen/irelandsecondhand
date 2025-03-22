@@ -1,13 +1,20 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/profile/profile",
+    "pages/trip-list/trip-list",
+    "pages/trip-detail/trip-detail",
     "pages/publish/publish",
+    "pages/profile/profile",
+    "pages/carry-list/carry-list",
+    "pages/carry-detail/carry-detail",
+    "pages/messages/messages",
+    "pages/chat/chat",
+    "pages/orders/orders",
+    "pages/order-detail/order-detail",
     "pages/publish-menu/publish-menu",
     "pages/order/order",
     "pages/detail/detail",
     "pages/message-detail/message-detail",
-    "pages/chat/chat",
     "pages/chat-list/chat-list",
     "pages/message-center/message-center",
     "pages/system-notifications/system-notifications",
@@ -21,7 +28,17 @@
     "pages/privacy/privacy",
     "pages/security/security",
     "pages/change-password/change-password",
-    "pages/set-payment-password/set-payment-password"
+    "pages/set-payment-password/set-payment-password",
+    "pages/transaction-detail/transaction-detail",
+    "pages/export-transactions/export-transactions",
+    "pages/payment-result/payment-result",
+    "pages/refund-apply/refund-apply",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/reset-password/reset-password",
+    "pages/user-agreement/user-agreement",
+    "pages/verification/verification",
+    "pages/logistics-tracking/logistics-tracking"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -65,6 +82,14 @@
       }
     ]
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于显示行程路线"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }

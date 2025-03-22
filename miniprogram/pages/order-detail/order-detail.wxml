@@ -1,0 +1,111 @@
+<view class="container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-dot"></view>
+    <view class="loading-dot"></view>
+    <view class="loading-dot"></view>
+  </view>
+  
+  <!-- 订单详情内容 -->
+  <block wx:if="{{!loading && order}}">
+    <!-- 订单状态卡片 -->
+    <view class="status-card" style="background-color: {{getStatusColor()}}">
+      <view class="status-title">{{statusMap[order.status]}}</view>
+      <view class="status-role">{{roleMap[order.userRole]}}</view>
+    </view>
+    
+    <!-- 订单信息 -->
+    <view class="info-section">
+      <view class="section-title">订单信息</view>
+      <view class="info-item">
+        <text class="info-label">订单编号</text>
+        <text class="info-value">{{order.orderId}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">创建时间</text>
+        <text class="info-value">{{order.createTime}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">物品描述</text>
+        <text class="info-value">{{order.itemDescription}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">物品重量</text>
+        <text class="info-value">{{order.totalWeight}}kg</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">订单金额</text>
+        <text class="info-value price">€{{order.price}}</text>
+      </view>
+      <view class="info-item" wx:if="{{order.customerNote}}">
+        <text class="info-label">备注</text>
+        <text class="info-value">{{order.customerNote}}</text>
+      </view>
+    </view>
+    
+    <!-- 行程信息 -->
+    <view class="info-section" wx:if="{{trip}}">
+      <view class="section-title">行程信息</view>
+      <view class="info-item">
+        <text class="info-label">行程路线</text>
+        <text class="info-value">{{trip.fromCity}} → {{trip.toCity}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">行程日期</text>
+        <text class="info-value">{{trip.date}}</text>
+      </view>
+      <view class="view-trip" bindtap="viewTrip">查看完整行程 ></view>
+    </view>
+    
+    <!-- 对方信息 -->
+    <view class="info-section" wx:if="{{counterpart}}">
+      <view class="section-title">{{order.userRole === 'customer' ? '承运方信息' : '发起方信息'}}</view>
+      <view class="user-info">
+        <image class="user-avatar" src="{{counterpart.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="user-detail">
+          <view class="user-name">{{counterpart.nickName || '未知用户'}}</view>
+          <view class="contact-btn" bindtap="contactCounterpart">联系对方</view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 订单状态时间线 -->
+    <view class="info-section">
+      <view class="section-title">订单状态记录</view>
+      <view class="timeline">
+        <view wx:for="{{order.timeline}}" wx:key="index" class="timeline-item">
+          <view class="timeline-dot"></view>
+          <view class="timeline-line" wx:if="{{index !== order.timeline.length - 1}}"></view>
+          <view class="timeline-content">
+            <view class="timeline-status">{{statusMap[item.status] || item.status}}</view>
+            <view class="timeline-time">{{formatDateTime(item.time)}}</view>
+            <view class="timeline-note" wx:if="{{item.note}}">{{item.note}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 操作按钮 -->
+    <view class="action-section" wx:if="{{canOperate}}">
+      <block wx:if="{{availableActions.includes('confirm')}}">
+        <button class="action-btn confirm" bindtap="handleConfirm">确认接单</button>
+      </block>
+      <block wx:if="{{availableActions.includes('reject')}}">
+        <button class="action-btn reject" bindtap="handleReject">拒绝订单</button>
+      </block>
+      <block wx:if="{{availableActions.includes('complete')}}">
+        <button class="action-btn complete" bindtap="handleComplete">完成订单</button>
+      </block>
+      <block wx:if="{{availableActions.includes('cancel')}}">
+        <button class="action-btn cancel" bindtap="handleCancel">取消订单</button>
+      </block>
+    </view>
+  </block>
+  
+  <!-- 订单不存在 -->
+  <view class="empty-container" wx:if="{{!loading && !order}}">
+    <image class="empty-icon" src="/images/not-found.png" mode="aspectFit"></image>
+    <view class="empty-text">订单不存在或已被删除</view>
+    <navigator url="/pages/orders/orders" class="back-btn">返回订单列表</navigator>
+  </view>
+</view> 

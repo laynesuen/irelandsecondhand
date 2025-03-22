@@ -1,0 +1,243 @@
+/* pages/transaction-detail/transaction-detail.wxss */
+
+.transaction-detail {
+  padding: 30rpx 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.transaction-status {
+  text-align: center;
+  padding: 20rpx 0 40rpx;
+  border-bottom: 1rpx solid #f2f2f2;
+  margin-bottom: 30rpx;
+}
+
+.transaction-status.success .status-text {
+  color: #07c160;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.transaction-status.pending .status-text {
+  color: #ff9800;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.transaction-status.failed .status-text {
+  color: #ff4040;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.transaction-amount {
+  text-align: center;
+  padding: 20rpx 0 40rpx;
+  margin-bottom: 30rpx;
+  border-bottom: 1rpx solid #f2f2f2;
+}
+
+.amount-label {
+  display: block;
+  font-size: 28rpx;
+  color: #888;
+  margin-bottom: 10rpx;
+}
+
+.amount-value {
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.amount-value.positive {
+  color: #07c160;
+}
+
+.amount-value.negative {
+  color: #ff4040;
+}
+
+.transaction-info {
+  padding: 10rpx 0;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  border-bottom: 1rpx solid #f7f7f7;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #888;
+  flex: 0 0 180rpx;
+}
+
+.info-value {
+  flex: 1;
+  color: #333;
+  word-break: break-all;
+}
+
+.copy-btn {
+  color: #1989fa;
+  font-size: 24rpx;
+  margin-left: 20rpx;
+  padding: 0 10rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin: 20rpx 0;
+  padding-left: 16rpx;
+  border-left: 6rpx solid #07c160;
+}
+
+.related-order {
+  margin-top: 30rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f2f2f2;
+}
+
+.order-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #f9f9f9;
+  border-radius: 8rpx;
+}
+
+.order-id {
+  color: #333;
+  font-size: 28rpx;
+}
+
+.arrow-icon {
+  color: #999;
+  font-size: 24rpx;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 40rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f2f2f2;
+}
+
+.action-btn {
+  margin: 0 15rpx;
+  padding: 0 30rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  border-radius: 35rpx;
+  font-size: 28rpx;
+  border: 1rpx solid #ddd;
+}
+
+.refund-btn {
+  color: #ff4040;
+  border-color: #ff4040;
+  background-color: #fff;
+}
+
+.retry-btn {
+  color: #fff;
+  background-color: #1989fa;
+  border-color: #1989fa;
+}
+
+.contact-btn {
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+/* 交易流程时间线 */
+.timeline-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.timeline {
+  padding: 20rpx 0;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 50rpx;
+  padding-bottom: 40rpx;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-item:before {
+  content: "";
+  position: absolute;
+  left: 12rpx;
+  top: 25rpx;
+  bottom: 0;
+  width: 2rpx;
+  background-color: #ddd;
+}
+
+.timeline-item:last-child:before {
+  display: none;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 6rpx;
+  top: 16rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background-color: #ddd;
+  border: 2rpx solid #fff;
+}
+
+.timeline-item.active .timeline-dot {
+  background-color: #07c160;
+  border-color: rgba(7, 193, 96, 0.2);
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-title {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.timeline-item.active .timeline-title {
+  color: #07c160;
+  font-weight: bold;
+}
+
+.timeline-time {
+  font-size: 24rpx;
+  color: #999;
+} 

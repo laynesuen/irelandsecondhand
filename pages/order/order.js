@@ -307,7 +307,7 @@ Page({
     if (order) {
       // 跳转到详情页
       wx.navigateTo({
-        url: `/pages/detail/detail?id=${orderId}&type=${order.orderType}`
+        url: `/pages/order-detail/order-detail?id=${orderId}`
       });
     }
   },

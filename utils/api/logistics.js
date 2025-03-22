@@ -1,10 +1,9 @@
 const { logisticsCollection } = require('../db');
-const cloud = require('wx-server-sdk');
 
 /**
  * 查询物流信息
  */
-export const queryLogistics = async (trackingNumber, carrier) => {
+const queryLogistics = async (trackingNumber, carrier) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'logistics',
@@ -15,19 +14,25 @@ export const queryLogistics = async (trackingNumber, carrier) => {
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('查询物流信息失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '查询物流失败'
+    };
   }
 };
 
 /**
  * 更新物流信息
  */
-export const updateLogistics = async (orderId, trackingNumber, carrier) => {
+const updateLogistics = async (orderId, trackingNumber, carrier) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'logistics',
@@ -39,19 +44,25 @@ export const updateLogistics = async (orderId, trackingNumber, carrier) => {
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('更新物流信息失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '更新物流失败'
+    };
   }
 };
 
 /**
  * 获取物流状态
  */
-export const getLogisticsStatus = async (orderId) => {
+const getLogisticsStatus = async (orderId) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'logistics',
@@ -62,19 +73,25 @@ export const getLogisticsStatus = async (orderId) => {
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('获取物流状态失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '获取物流状态失败'
+    };
   }
 };
 
 /**
  * 同步物流信息
  */
-export const syncLogistics = async (orderId) => {
+const syncLogistics = async (orderId) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'logistics',
@@ -85,12 +102,18 @@ export const syncLogistics = async (orderId) => {
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('同步物流信息失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message || '同步物流失败'
+    };
   }
 };
 
@@ -99,7 +122,7 @@ export const syncLogistics = async (orderId) => {
  * @param {String} orderId 订单ID
  * @returns {Promise} 返回物流轨迹
  */
-async function getLogisticsTrack(orderId) {
+const getLogisticsTrack = async (orderId) => {
   try {
     const logistics = await logisticsCollection.where({
       orderId
@@ -126,12 +149,44 @@ async function getLogisticsTrack(orderId) {
       message: error.message || '获取物流轨迹失败'
     };
   }
-}
+};
+
+/**
+ * 更新快递单号
+ */
+const updateTrackingNumber = async (orderId, trackingNumber, carrier) => {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: 'logistics',
+      data: {
+        action: 'updateTrackingNumber',
+        orderId,
+        trackingNumber,
+        carrier
+      }
+    });
+
+    if (res.result.success) {
+      return {
+        success: true,
+        data: res.result.data
+      };
+    }
+    throw new Error(res.result.message);
+  } catch (error) {
+    console.error('更新快递单号失败:', error);
+    return {
+      success: false,
+      message: error.message || '更新快递单号失败'
+    };
+  }
+};
 
 module.exports = {
   queryLogistics,
   updateLogistics,
   getLogisticsStatus,
   syncLogistics,
-  getLogisticsTrack
+  getLogisticsTrack,
+  updateTrackingNumber
 }; 

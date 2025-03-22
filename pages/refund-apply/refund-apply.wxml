@@ -1,0 +1,124 @@
+<!-- pages/refund-apply/refund-apply.wxml -->
+<view class="refund-container">
+  <!-- 订单信息 -->
+  <view class="order-info">
+    <view class="info-header">
+      <text class="title">订单信息</text>
+    </view>
+    
+    <view class="info-content">
+      <view class="info-item">
+        <text class="label">订单类型</text>
+        <text class="value">{{orderTypeName}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="label">订单金额</text>
+        <text class="value">¥{{orderAmount}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="label">支付时间</text>
+        <text class="value">{{payTime}}</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 退款信息 -->
+  <view class="refund-form">
+    <view class="form-header">
+      <text class="title">退款信息</text>
+    </view>
+    
+    <view class="form-item">
+      <text class="label required">退款类型</text>
+      <view class="value">
+        <picker bindchange="onRefundTypeChange" value="{{refundTypeIndex}}" range="{{refundTypes}}">
+          <view class="picker {{refundTypeIndex === -1 ? 'placeholder' : ''}}">
+            {{refundTypeIndex === -1 ? '请选择退款类型' : refundTypes[refundTypeIndex]}}
+          </view>
+        </picker>
+      </view>
+    </view>
+    
+    <view class="form-item">
+      <text class="label required">退款原因</text>
+      <view class="value">
+        <picker bindchange="onRefundReasonChange" value="{{refundReasonIndex}}" range="{{refundReasons}}">
+          <view class="picker {{refundReasonIndex === -1 ? 'placeholder' : ''}}">
+            {{refundReasonIndex === -1 ? '请选择退款原因' : refundReasons[refundReasonIndex]}}
+          </view>
+        </picker>
+      </view>
+    </view>
+    
+    <view class="form-item">
+      <text class="label required">退款金额</text>
+      <view class="value amount-input">
+        <text class="currency">¥</text>
+        <input 
+          type="digit" 
+          value="{{refundAmount}}" 
+          bindinput="onRefundAmountInput" 
+          placeholder="请输入退款金额" 
+          placeholder-class="input-placeholder"
+          maxlength="10"
+        />
+      </view>
+    </view>
+    
+    <view class="form-item vertical">
+      <text class="label">退款说明</text>
+      <view class="value">
+        <textarea 
+          value="{{description}}" 
+          bindinput="onDescriptionInput" 
+          placeholder="请详细描述退款原因，有助于更快处理您的申请" 
+          placeholder-class="input-placeholder" 
+          maxlength="200"
+        ></textarea>
+        <view class="textarea-counter">{{description.length}}/200</view>
+      </view>
+    </view>
+    
+    <view class="form-item vertical">
+      <text class="label">上传凭证</text>
+      <view class="value">
+        <view class="upload-area">
+          <view class="image-list">
+            <view class="image-item" wx:for="{{uploadedImages}}" wx:key="index">
+              <image src="{{item}}" mode="aspectFill" bindtap="previewImage" data-index="{{index}}"></image>
+              <view class="delete-btn" catchtap="deleteImage" data-index="{{index}}">×</view>
+            </view>
+            
+            <view class="upload-btn" bindtap="chooseImage" wx:if="{{uploadedImages.length < 3}}">
+              <view class="icon-add">+</view>
+              <text>添加图片</text>
+            </view>
+          </view>
+          <text class="upload-tip">最多上传3张图片作为凭证</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 退款须知 -->
+  <view class="refund-notice">
+    <view class="notice-header">
+      <text class="notice-title">退款须知</text>
+    </view>
+    <view class="notice-body">
+      <text class="notice-item">1. 退款申请提交后客服将在1-3个工作日内审核</text>
+      <text class="notice-item">2. 退款成功后，金额将原路退回到您的支付账户</text>
+      <text class="notice-item">3. 如有特殊情况，可联系客服处理</text>
+    </view>
+  </view>
+  
+  <!-- 提交按钮 -->
+  <view class="bottom-bar">
+    <button class="submit-btn {{canSubmit ? '' : 'disabled'}}" bindtap="submitRefund" disabled="{{!canSubmit || isSubmitting}}">
+      <text wx:if="{{isSubmitting}}">提交中...</text>
+      <text wx:else>提交退款申请</text>
+    </button>
+  </view>
+</view> 

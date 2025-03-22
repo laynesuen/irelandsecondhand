@@ -31,8 +31,8 @@ function getMockOrderList(page = 1, pageSize = 10) {
       statusText: getStatusText(status),
       fromLocation: fromLocations[fromIndex],
       toLocation: toLocations[toIndex],
-      createTime: new Date(Date.now() - index * 86400000).toISOString(), // 每个订单日期依次减1天
-      estimatedArrival: new Date(Date.now() + (10 - index % 10) * 86400000).toISOString(),
+      createTime: formatDate(new Date(Date.now() - index * 86400000)), // 每个订单日期依次减1天
+      estimatedArrival: formatDate(new Date(Date.now() + (10 - index % 10) * 86400000)),
       totalAmount: (Math.floor(Math.random() * 10) + 5) * 50, // 随机金额
       paymentStatus: Math.random() > 0.3 ? 'paid' : 'unpaid', // 随机付款状态
     };
@@ -91,13 +91,13 @@ function getMockOrderDetail(orderId) {
     orderTypeText: orderType === 'trip' ? '行程订单' : '捎带需求',
     status: status,
     statusText: getStatusText(status),
-    createTime: new Date(Date.now() - statusIndex * 86400000).toISOString(),
+    createTime: formatDate(new Date(Date.now() - statusIndex * 86400000)),
     fromLocation: '上海',
     toLocation: '都柏林',
-    estimatedArrival: new Date(Date.now() + (10 - statusIndex) * 86400000).toISOString(),
+    estimatedArrival: formatDate(new Date(Date.now() + (10 - statusIndex) * 86400000)),
     totalAmount: (Math.floor(Math.random() * 10) + 5) * 50, // 随机金额
     paymentStatus: status === 'pending' ? 'unpaid' : 'paid', // 根据状态设置支付状态
-    payTime: status === 'pending' ? null : new Date(Date.now() - (statusIndex - 1) * 86400000).toISOString(),
+    payTime: status === 'pending' ? null : formatDate(new Date(Date.now() - (statusIndex - 1) * 86400000)),
     remarks: '请小心轻放，避免碰撞。',
     steps: generateOrderSteps(status),
   };
@@ -119,8 +119,8 @@ function getMockOrderDetail(orderId) {
       phone: '139****1234'
     };
     order.tripInfo = {
-      departureTime: new Date(Date.now() + 5 * 86400000).toISOString(),
-      arrivalTime: new Date(Date.now() + 6 * 86400000).toISOString(),
+      departureTime: formatDate(new Date(Date.now() + 5 * 86400000)),
+      arrivalTime: formatDate(new Date(Date.now() + 6 * 86400000)),
       flightNumber: 'CA123',
       maxWeight: '5kg'
     };
@@ -162,7 +162,7 @@ function getMockOrderDetail(orderId) {
     
     // 捎带需求的额外信息
     order.deliveryInfo = {
-      expectedDeliveryTime: new Date(Date.now() + 7 * 86400000).toISOString(),
+      expectedDeliveryTime: formatDate(new Date(Date.now() + 7 * 86400000)),
       pickupAddress: '上海市浦东新区XX路XX号',
       deliveryAddress: '都柏林市XX区XX街XX号'
     };
@@ -187,8 +187,8 @@ function generateOrderSteps(currentStatus) {
   // 如果是取消状态，添加取消步骤
   if (currentStatus === 'cancelled') {
     return [
-      { status: 'pending', title: '等待接单', desc: '订单已创建，等待接单', time: new Date(Date.now() - 3 * 86400000).toISOString(), completed: true },
-      { status: 'cancelled', title: '已取消', desc: '订单已取消', time: new Date().toISOString(), completed: true }
+      { status: 'pending', title: '等待接单', desc: '订单已创建，等待接单', time: formatDate(new Date(Date.now() - 3 * 86400000)), completed: true },
+      { status: 'cancelled', title: '已取消', desc: '订单已取消', time: formatDate(new Date()), completed: true }
     ];
   }
   
@@ -196,7 +196,8 @@ function generateOrderSteps(currentStatus) {
   const steps = [];
   let foundCurrent = false;
   
-  for (const step of statusFlow) {
+  for (let i = 0; i < statusFlow.length; i++) {
+    const step = statusFlow[i];
     if (foundCurrent) {
       // 当前状态之后的步骤
       steps.push({
@@ -208,7 +209,7 @@ function generateOrderSteps(currentStatus) {
       // 已完成的步骤
       steps.push({
         ...step,
-        time: new Date(Date.now() - steps.length * 86400000).toISOString(),
+        time: formatDate(new Date(Date.now() - i * 86400000)), // 使用索引i替代steps.length
         completed: true
       });
       
@@ -237,6 +238,25 @@ function getStatusText(status) {
   };
   
   return statusMap[status] || status;
+}
+
+/**
+ * 格式化日期为ISO字符串，并确保日期有效
+ * @param {Date} date 日期对象
+ * @returns {String} 格式化后的日期字符串
+ */
+function formatDate(date) {
+  try {
+    // 检查是否为有效日期
+    if (isNaN(date.getTime())) {
+      // 如果是无效日期，返回当前时间的ISO字符串
+      return new Date().toISOString();
+    }
+    return date.toISOString();
+  } catch (e) {
+    console.error('无效的日期值:', e);
+    return new Date().toISOString();
+  }
 }
 
 module.exports = {

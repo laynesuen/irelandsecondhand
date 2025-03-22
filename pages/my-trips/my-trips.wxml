@@ -50,22 +50,28 @@
           </view>
           
           <view class="trip-detail">
-            <view class="detail-row">
-              <text class="detail-label">出发时间：</text>
-              <text class="detail-value time">{{item.departureTime}}</text>
-            </view>
-            <view class="detail-row">
-              <text class="detail-label">捎带价格：</text>
-              <text class="detail-value price">€{{item.rewardRequirement}}</text>
-            </view>
-            <view class="detail-row">
-              <text class="detail-label">可携带重量：</text>
-              <text class="detail-value">{{item.availableWeight}}</text>
-            </view>
-            <view class="detail-row">
-              <text class="detail-label">可接受物品：</text>
-              <view class="detail-value item-tags">
-                <text wx:for="{{item.acceptableItems}}" wx:key="*this" wx:for-item="itemTag" class="item-tag">{{itemTag}}</text>
+            <view class="detail-grid">
+              <view class="detail-column">
+                <view class="detail-row">
+                  <text class="detail-label">出发时间：</text>
+                  <text class="detail-value time">{{item.departureTime}}</text>
+                </view>
+                <view class="detail-row">
+                  <text class="detail-label">可接受物品：</text>
+                  <view class="detail-value item-tags">
+                    <text wx:for="{{item.acceptableItems}}" wx:key="*this" wx:for-item="itemTag" class="item-tag">{{itemTag}}</text>
+                  </view>
+                </view>
+              </view>
+              <view class="detail-column">
+                <view class="detail-row">
+                  <text class="detail-label">捎带价格：</text>
+                  <text class="detail-value price">€{{item.rewardRequirement}}</text>
+                </view>
+                <view class="detail-row">
+                  <text class="detail-label">可携带重量：</text>
+                  <text class="detail-value weight">{{item.availableWeight}}</text>
+                </view>
               </view>
             </view>
           </view>

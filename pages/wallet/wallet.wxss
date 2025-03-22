@@ -277,3 +277,43 @@
   text-align: center;
   width: 100%;
 }
+
+/* 交易记录操作区域 */
+.transactions-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 24rpx 16rpx;
+}
+
+.export-btn {
+  background-color: #f2f2f2;
+  color: #666;
+  font-size: 24rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 6rpx;
+  border: 1rpx solid #ddd;
+  line-height: 1.4;
+}
+
+/* 交易状态颜色 */
+.status-text {
+  margin-right: 8rpx;
+}
+
+.status-text.success {
+  color: #07c160;
+}
+
+.status-text.pending {
+  color: #ff9800;
+}
+
+.status-text.failed {
+  color: #ff4040;
+}
+
+.arrow-icon {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 6rpx;
+}

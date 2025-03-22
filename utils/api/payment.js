@@ -1,141 +1,26 @@
 const { paymentsCollection } = require('../db');
 const { getExchangeRate } = require('./exchange');
-const cloud = require('wx-server-sdk');
-
-/**
- * 获取实时汇率
- * @returns {Promise} 返回欧元兑人民币汇率
- */
-function getExchangeRate() {
-  // 实际项目中应该调用汇率API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        data: {
-          rate: 7.85, // 模拟汇率
-          updateTime: new Date().toISOString()
-        }
-      });
-    }, 500);
-  });
-}
 
 /**
  * 欧元转人民币
- * @param {Number} euroAmount 欧元金额
- * @returns {Promise} 返回转换后的人民币金额
+ * @param {number} euroAmount - 欧元金额
+ * @returns {number} 人民币金额
  */
-function convertEuroToCNY(euroAmount) {
-  return getExchangeRate().then(res => {
-    if (res.success) {
-      return {
-        success: true,
-        data: {
-          cnyAmount: (euroAmount * res.data.rate).toFixed(2),
-          rate: res.data.rate
-        }
-      };
-    }
-    return {
-      success: false,
-      message: '获取汇率失败'
-    };
-  });
-}
-
-/**
- * 获取支付方式列表
- * @returns {Promise} 返回可用的支付方式
- */
-function getPaymentMethods() {
-  return new Promise((resolve) => {
-    resolve({
-      success: true,
-      data: [
-        {
-          id: 'apple_pay',
-          name: 'Apple Pay',
-          currency: 'EUR',
-          priority: 1,
-          enabled: true
-        },
-        {
-          id: 'wechat_pay',
-          name: '微信支付',
-          currency: 'CNY',
-          priority: 2,
-          enabled: true
-        },
-        {
-          id: 'card_pay',
-          name: '银行卡支付',
-          currency: 'EUR',
-          priority: 3,
-          enabled: true
-        }
-      ]
-    });
-  });
-}
-
-/**
- * 创建支付订单
- * @param {String} orderId 订单ID
- * @param {Number} amount 支付金额（欧元）
- * @param {String} paymentMethod 支付方式
- * @returns {Promise} 返回支付参数
- */
-export const createPayment = async (orderId, amount, currency, paymentMethod) => {
+const convertEuroToCNY = async (euroAmount) => {
   try {
-    const res = await wx.cloud.callFunction({
-      name: 'payment',
-      data: {
-        orderId,
-        amount,
-        currency,
-        paymentMethod
-      }
-    });
-
-    if (res.result.success) {
-      return res.result.data;
-    }
-    throw new Error(res.result.message);
+    const rate = await getExchangeRate();
+    return euroAmount * rate;
   } catch (error) {
-    console.error('创建支付订单失败:', error);
+    console.error('货币转换失败:', error);
     throw error;
   }
 };
 
 /**
- * 获取支付状态
- * @param {String} orderId 订单ID
- * @returns {Promise} 返回支付状态
+ * 获取可用支付方式
+ * @returns {Promise} 支付方式列表
  */
-export const getPaymentStatus = async (orderId) => {
-  try {
-    const res = await wx.cloud.callFunction({
-      name: 'payment',
-      data: {
-        orderId
-      }
-    });
-
-    if (res.result.success) {
-      return res.result.data;
-    }
-    throw new Error(res.result.message);
-  } catch (error) {
-    console.error('获取支付状态失败:', error);
-    throw error;
-  }
-};
-
-/**
- * 获取支付方式列表
- */
-export const getPaymentMethods = async () => {
+const getPaymentMethods = async () => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'payment',
@@ -145,43 +30,220 @@ export const getPaymentMethods = async () => {
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('获取支付方式失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+/**
+ * 创建支付订单
+ * @param {string} orderId - 订单ID
+ * @param {number} amount - 金额
+ * @param {string} paymentMethod - 支付方式
+ * @returns {Promise} 支付结果
+ */
+const createPayment = async (orderId, amount, paymentMethod) => {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: 'payment',
+      data: {
+        action: 'createPayment',
+        orderId,
+        amount,
+        paymentMethod
+      }
+    });
+
+    if (res.result.success) {
+      return {
+        success: true,
+        data: res.result.data
+      };
+    }
+    throw new Error(res.result.message);
+  } catch (error) {
+    console.error('创建支付失败:', error);
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+/**
+ * 获取支付状态
+ * @param {string} paymentId - 支付ID
+ * @returns {Promise} 支付状态
+ */
+const getPaymentStatus = async (paymentId) => {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: 'payment',
+      data: {
+        action: 'getPaymentStatus',
+        paymentId
+      }
+    });
+
+    if (res.result.success) {
+      return {
+        success: true,
+        data: res.result.data
+      };
+    }
+    throw new Error(res.result.message);
+  } catch (error) {
+    console.error('获取支付状态失败:', error);
+    return {
+      success: false,
+      message: error.message
+    };
   }
 };
 
 /**
  * 处理支付结果
+ * @param {string} paymentId - 支付ID
+ * @param {string} status - 支付状态
+ * @returns {Promise} 处理结果
  */
-export const handlePaymentResult = async (orderId) => {
+const handlePaymentResult = async (paymentId, status) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'payment',
       data: {
         action: 'handlePaymentResult',
-        orderId
+        paymentId,
+        status
       }
     });
 
     if (res.result.success) {
-      return res.result.data;
+      return {
+        success: true,
+        data: res.result.data
+      };
     }
     throw new Error(res.result.message);
   } catch (error) {
     console.error('处理支付结果失败:', error);
-    throw error;
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+/**
+ * 申请退款
+ * @param {Object} refundData - 退款数据
+ * @returns {Promise} 处理结果
+ */
+const applyRefund = async (refundData) => {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: 'payment',
+      data: {
+        action: 'applyRefund',
+        ...refundData
+      }
+    });
+
+    if (res.result.success) {
+      return {
+        success: true,
+        data: res.result.data
+      };
+    }
+    throw new Error(res.result.message);
+  } catch (error) {
+    console.error('申请退款失败:', error);
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+/**
+ * 获取退款状态
+ * @param {string} refundId - 退款ID
+ * @returns {Promise} 退款状态
+ */
+const getRefundStatus = async (refundId) => {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: 'payment',
+      data: {
+        action: 'getRefundStatus',
+        refundId
+      }
+    });
+
+    if (res.result.success) {
+      return {
+        success: true,
+        data: res.result.data
+      };
+    }
+    throw new Error(res.result.message);
+  } catch (error) {
+    console.error('获取退款状态失败:', error);
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
+/**
+ * 获取交易详情
+ * @param {string} transactionId - 交易ID
+ * @returns {Promise} 交易详情
+ */
+const getTransactionDetail = async (transactionId) => {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: 'payment',
+      data: {
+        action: 'getTransactionDetail',
+        transactionId
+      }
+    });
+
+    if (res.result.success) {
+      return {
+        success: true,
+        data: res.result.data
+      };
+    }
+    throw new Error(res.result.message);
+  } catch (error) {
+    console.error('获取交易详情失败:', error);
+    return {
+      success: false,
+      message: error.message
+    };
   }
 };
 
 module.exports = {
-  getExchangeRate,
   convertEuroToCNY,
   getPaymentMethods,
   createPayment,
   getPaymentStatus,
-  handlePaymentResult
+  handlePaymentResult,
+  applyRefund,
+  getRefundStatus,
+  getTransactionDetail
 }; 

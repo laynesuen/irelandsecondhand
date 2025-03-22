@@ -293,10 +293,33 @@
   margin-top: 20rpx;
 }
 
+/* 详情网格布局 */
+.detail-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20rpx;
+  justify-content: space-between;
+}
+
+.detail-column {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 左侧列调整 - 增加宽度比例 */
+.detail-column:first-child {
+  flex: 1.3;
+}
+
+/* 右侧列调整 */
+.detail-column:last-child {
+  flex: 0.8;
+}
+
 .detail-row {
   display: flex;
   margin-bottom: 14rpx;
-  align-items: center;
+  align-items: flex-start; /* 改为顶部对齐，适应多行文本 */
   flex-wrap: nowrap;
 }
 
@@ -305,45 +328,83 @@
 }
 
 .detail-label {
-  width: 150rpx;
+  width: 130rpx;
   font-size: 26rpx;
   color: #888;
   flex-shrink: 0;
   white-space: nowrap;
   line-height: 1.5;
+  text-align: left;
+  text-align-last: left;
+  margin-right: 10rpx;
 }
 
 .detail-value {
   font-size: 26rpx;
-  color: #1e88e5;
-  font-weight: 500;
+  color: #333;
+  font-weight: 600;
   padding: 4rpx 12rpx;
   border-radius: 16rpx;
-  display: inline-block;
+  display: inline;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.5;
   vertical-align: middle;
-  max-width: calc(100% - 170rpx);
+  max-width: fit-content;
   flex: none;
-  width: auto;
-  background: linear-gradient(135deg, rgba(30, 136, 229, 0.08), rgba(30, 136, 229, 0.16));
 }
 
 /* 为不同类型的值应用特定样式 */
 .detail-value.price {
   color: #ff5252;
   background: linear-gradient(135deg, rgba(255, 82, 82, 0.08), rgba(255, 82, 82, 0.16));
-  padding: 4rpx 12rpx;
-  border-radius: 16rpx;
   font-weight: 600;
   display: inline-block;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
 }
 
+/* 重量样式 */
+.detail-value.weight {
+  color: #2196f3;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.08), rgba(33, 150, 243, 0.16));
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+}
+
+/* 时间值样式 */
 .detail-value.time {
   color: #ff9800;
   background: linear-gradient(135deg, rgba(255, 152, 0, 0.08), rgba(255, 152, 0, 0.16));
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.5;
+  min-height: 40rpx;
+  width: auto;
+  max-width: calc(100% - 150rpx);
+}
+
+/* 左侧列中标签的宽度调整 */
+.detail-column:first-child .detail-label {
+  width: 130rpx;
+  padding-top: 6rpx;
+}
+
+.detail-column:first-child .detail-value {
+  max-width: calc(100% - 150rpx);
+}
+
+/* 右侧列中的标签和值 */
+.detail-column:last-child .detail-label {
+  width: 130rpx;
+  padding-top: 6rpx;
+}
+
+.detail-column:last-child .detail-value {
+  max-width: calc(100% - 150rpx);
 }
 
 /* 可接受物品标签样式 */
@@ -353,7 +414,8 @@
   gap: 8rpx;
   background: transparent;
   padding: 4rpx 0;
-  max-width: calc(100% - 170rpx);
+  max-width: calc(100% - 150rpx);
+  width: auto;
 }
 
 .item-tag {
@@ -361,16 +423,17 @@
   background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(76, 175, 80, 0.16));
   padding: 4rpx 12rpx;
   border-radius: 16rpx;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 24rpx;
   display: inline-block;
+  margin-bottom: 6rpx;
 }
 
 /* 操作按钮区域调整 */
 .trip-actions {
   display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  flex-wrap: nowrap;
   margin-top: 20rpx;
   position: relative;
   padding-top: 15rpx;
@@ -378,19 +441,22 @@
 }
 
 .action-btn {
-  min-width: 120rpx;
-  padding: 0 30rpx;
-  height: 64rpx;
-  line-height: 64rpx;
-  font-size: 26rpx;
-  margin-left: 20rpx;
+  min-width: 160rpx;
+  padding: 0 40rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  font-size: 28rpx;
+  margin-left: 0;
   background-color: #f8f8f8;
   color: #666;
-  border-radius: 32rpx;
+  border-radius: 35rpx;
   box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
   margin-bottom: 0;
   font-weight: 500;
+  flex: 1;
+  max-width: 45%;
+  margin: 0 10rpx;
 }
 
 .action-btn::after {

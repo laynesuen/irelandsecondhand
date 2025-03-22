@@ -18,7 +18,8 @@ Page({
     withdrawFeeRate: 0.01, // 提现手续费率
     minWithdrawFee: 1, // 最低提现手续费
     withdrawFee: 0, // 当前提现手续费
-    actualWithdrawAmount: 0 // 实际到账金额
+    actualWithdrawAmount: 0, // 实际到账金额
+    allTransactions: [] // 所有交易记录
   },
 
   onLoad: function() {
@@ -84,7 +85,8 @@ Page({
         transactions: this.data.page === 1 ? filteredTransactions : [...this.data.transactions, ...filteredTransactions],
         loading: false,
         hasMore: this.data.page < 3, // 模拟只有3页数据
-        page: this.data.page + 1
+        page: this.data.page + 1,
+        allTransactions: [...this.data.allTransactions, ...newTransactions]
       });
     }, 1000);
   },
@@ -388,17 +390,21 @@ Page({
     }, 2000);
   },
 
-  // 查看交易详情
-  viewTransactionDetail: function(e) {
-    const id = e.currentTarget.dataset.id;
-    const transaction = this.data.transactions.find(item => item.id === id);
+  /**
+   * 查看交易详情
+   */
+  viewTransactionDetail(e) {
+    const transactionId = e.currentTarget.dataset.id;
+    const transaction = this.data.transactions.find(item => item.id === transactionId);
     
     if (!transaction) return;
     
-    wx.showModal({
-      title: '交易详情',
-      content: `类型：${transaction.typeText}\n金额：${transaction.amount}\n状态：${transaction.statusText}\n时间：${transaction.date} ${transaction.time}\n说明：${transaction.description}`,
-      showCancel: false
+    // 记录当前选中的交易记录，用于详情页显示
+    wx.setStorageSync('currentTransaction', transaction);
+    
+    // 导航到交易详情页
+    wx.navigateTo({
+      url: `/pages/transaction-detail/transaction-detail?id=${transactionId}`
     });
   },
 
@@ -432,6 +438,50 @@ Page({
         if (res.confirm) {
           wx.navigateBack();
         }
+      }
+    });
+  },
+
+  // 导出交易记录
+  exportTransactions() {
+    wx.showLoading({
+      title: '正在准备导出...'
+    });
+    
+    // 过滤当前选中类型的交易记录
+    const records = this.filterTransactionsByType(this.data.activeTab);
+    
+    // 设置要导出的数据
+    wx.setStorageSync('exportTransactions', {
+      records: records,
+      date: new Date().toISOString(),
+      type: this.data.activeTab,
+      userName: this.data.userInfo.nickName || '用户'
+    });
+    
+    setTimeout(() => {
+      wx.hideLoading();
+      wx.navigateTo({
+        url: '/pages/export-transactions/export-transactions'
+      });
+    }, 1000);
+  },
+  
+  /**
+   * 根据类型过滤交易记录
+   */
+  filterTransactionsByType(type) {
+    if (type === 'all') {
+      return this.data.allTransactions;
+    }
+    
+    return this.data.allTransactions.filter(item => {
+      switch(type) {
+        case 'recharge': return item.type === 'recharge';
+        case 'withdraw': return item.type === 'withdraw';
+        case 'income': return ['order_income', 'refund', 'reward'].includes(item.type);
+        case 'expense': return ['order_payment', 'fee', 'penalty'].includes(item.type);
+        default: return true;
       }
     });
   },

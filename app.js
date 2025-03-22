@@ -5,7 +5,11 @@ App({
     isLoggedIn: false,
     serverUrl: 'https://express-yrin-147698-5-1348651097.sh.run.tcloudbase.com', // 云托管服务地址
     useCustomTabBar: false, // 是否使用自定义TabBar，设置为false使用系统默认
-    tokenExpireTime: null
+    tokenExpireTime: null,
+    locale: 'zh-CN', // 默认语言设置
+    webSocketConnected: false, // WebSocket连接状态
+    unreadMessageCount: 0, // 未读消息数量
+    realNameAuthRequired: true // 是否需要实名认证才能发布信息
   },
   onLaunch: function() {
     // 初始化云开发环境
@@ -49,6 +53,178 @@ App({
         }
       });
     }
+    
+    // 初始化用户语言设置
+    this.initUserLocale();
+    
+    // 延迟初始化WebSocket连接
+    setTimeout(() => {
+      this.initWebSocket();
+    }, 1000);
+  },
+  
+  // 初始化用户语言设置
+  initUserLocale: function() {
+    try {
+      // 尝试获取存储的语言设置
+      const locale = wx.getStorageSync('userLocale');
+      if (locale) {
+        this.globalData.locale = locale;
+      } else {
+        // 如果没有存储的设置，使用系统语言
+        const systemInfo = wx.getSystemInfoSync();
+        const systemLanguage = systemInfo.language;
+        
+        // 根据系统语言设置应用语言
+        if (systemLanguage.startsWith('zh')) {
+          this.globalData.locale = 'zh-CN';
+        } else {
+          this.globalData.locale = 'en-US';
+        }
+        
+        // 存储设置
+        wx.setStorageSync('userLocale', this.globalData.locale);
+      }
+      
+      console.log('当前语言设置:', this.globalData.locale);
+    } catch (error) {
+      console.error('初始化语言设置失败:', error);
+      // 出错时使用默认设置
+      this.globalData.locale = 'zh-CN';
+    }
+  },
+  
+  // 初始化WebSocket连接
+  initWebSocket: function() {
+    // 动态导入WebSocket模块
+    const { webSocketClient } = require('./utils/websocket');
+    
+    // 设置WebSocket事件处理
+    webSocketClient.on('open', () => {
+      console.log('WebSocket连接已建立');
+      this.globalData.webSocketConnected = true;
+    });
+    
+    webSocketClient.on('close', () => {
+      console.log('WebSocket连接已关闭');
+      this.globalData.webSocketConnected = false;
+    });
+    
+    webSocketClient.on('error', (error) => {
+      console.error('WebSocket连接错误:', error);
+      this.globalData.webSocketConnected = false;
+    });
+    
+    webSocketClient.on('authenticated', (data) => {
+      console.log('WebSocket认证成功:', data);
+    });
+    
+    webSocketClient.on('chat', (data) => {
+      // 处理新聊天消息
+      this.handleNewChatMessage(data);
+    });
+    
+    webSocketClient.on('notification', (data) => {
+      // 处理新通知消息
+      this.handleNewNotification(data);
+    });
+    
+    // 如果用户已登录，则连接WebSocket
+    if (this.globalData.isLoggedIn) {
+      webSocketClient.connect();
+    }
+  },
+  
+  // 处理新聊天消息
+  handleNewChatMessage: function(messageData) {
+    console.log('收到新聊天消息:', messageData);
+    
+    // 更新未读消息计数
+    this.updateUnreadMessageCount();
+    
+    // 通知活动的聊天页面
+    const pages = getCurrentPages();
+    if (pages.length > 0) {
+      const currentPage = pages[pages.length - 1];
+      
+      // 如果当前页面是聊天页面，并且消息是来自当前聊天的用户
+      if (currentPage.route === 'pages/chat/chat' && 
+          currentPage.data.targetUserId === messageData.from) {
+        // 通知页面更新
+        if (currentPage.updateChatMessages) {
+          currentPage.updateChatMessages(messageData);
+        }
+      } else {
+        // 如果不是当前聊天用户，显示通知
+        wx.showToast({
+          title: '收到新消息',
+          icon: 'none'
+        });
+      }
+    }
+  },
+  
+  // 处理新通知消息
+  handleNewNotification: function(notificationData) {
+    console.log('收到新通知:', notificationData);
+    
+    // 根据通知类型处理
+    switch (notificationData.type) {
+      case 'order_status_change':
+        wx.showToast({
+          title: '订单状态已更新',
+          icon: 'none'
+        });
+        break;
+      case 'new_review':
+        wx.showToast({
+          title: '收到新的评价',
+          icon: 'none'
+        });
+        break;
+      case 'system':
+        wx.showToast({
+          title: notificationData.content || '系统通知',
+          icon: 'none'
+        });
+        break;
+    }
+    
+    // 触发通知更新
+    const pages = getCurrentPages();
+    pages.forEach(page => {
+      if (page.onNotificationReceived) {
+        page.onNotificationReceived(notificationData);
+      }
+    });
+  },
+  
+  // 更新未读消息计数
+  updateUnreadMessageCount: function() {
+    // 调用云函数获取未读消息数量
+    wx.cloud.callFunction({
+      name: 'getUnreadMessageCount',
+      success: res => {
+        if (res.result && res.result.success) {
+          const count = res.result.data.count || 0;
+          this.globalData.unreadMessageCount = count;
+          
+          // 如果有未读消息，显示红点
+          if (count > 0) {
+            wx.showTabBarRedDot({
+              index: 2 // 聊天选项卡的索引
+            });
+          } else {
+            wx.hideTabBarRedDot({
+              index: 2
+            });
+          }
+        }
+      },
+      fail: err => {
+        console.error('获取未读消息数量失败:', err);
+      }
+    });
   },
   
   // 全局返回按钮处理函数，配合app.json中的handleBackFunction使用

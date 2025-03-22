@@ -1,0 +1,282 @@
+<!-- pages/search/search.wxml -->
+<view class="search-container">
+  <!-- 搜索头部 -->
+  <view class="search-header">
+    <view class="search-bar">
+      <input class="search-input" placeholder="搜索目的地、物品类型" bindinput="onSearchInput" value="{{searchKeyword}}" focus="{{autoFocus}}" confirm-type="search" bindconfirm="onSearchConfirm" />
+      <view class="search-icon-wrapper" bindtap="onSearchTap">
+        <icon class="search-icon" type="search" size="18" color="#666"></icon>
+      </view>
+    </view>
+    <view class="cancel-btn" bindtap="onCancelSearch">取消</view>
+  </view>
+
+  <!-- 搜索历史 -->
+  <view class="search-history" wx:if="{{!searchKeyword && searchHistory.length > 0 && !showSearchResults}}">
+    <view class="section-header">
+      <text class="section-title">搜索历史</text>
+      <view class="clear-history" bindtap="clearSearchHistory">清除</view>
+    </view>
+    <view class="history-tags">
+      <view class="history-tag" wx:for="{{searchHistory}}" wx:key="*this" bindtap="onHistoryTagTap" data-keyword="{{item}}">
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 热门搜索 -->
+  <view class="hot-search" wx:if="{{!searchKeyword && !showSearchResults}}">
+    <view class="section-header">
+      <text class="section-title">热门搜索</text>
+    </view>
+    <view class="hot-tags">
+      <view class="hot-tag" wx:for="{{hotSearchTags}}" wx:key="*this" bindtap="onHotTagTap" data-keyword="{{item}}">
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选条件 -->
+  <view class="filter-container" wx:if="{{showSearchResults}}">
+    <scroll-view scroll-x="true" class="filter-scroll">
+      <view class="filter-tabs">
+        <view class="filter-tab {{activeFilter === 'all' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="all">全部</view>
+        <view class="filter-tab {{activeFilter === 'type' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="type">物品类型
+          <view class="filter-arrow {{showTypeFilter ? 'up' : 'down'}}"></view>
+        </view>
+        <view class="filter-tab {{activeFilter === 'time' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="time">时间范围
+          <view class="filter-arrow {{showTimeFilter ? 'up' : 'down'}}"></view>
+        </view>
+        <view class="filter-tab {{activeFilter === 'price' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="price">价格区间
+          <view class="filter-arrow {{showPriceFilter ? 'up' : 'down'}}"></view>
+        </view>
+        <view class="filter-tab {{activeFilter === 'weight' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="weight">重量区间
+          <view class="filter-arrow {{showWeightFilter ? 'up' : 'down'}}"></view>
+        </view>
+        <view class="filter-tab {{activeFilter === 'rating' ? 'active' : ''}}" bindtap="onFilterTap" data-filter="rating">用户评分
+          <view class="filter-arrow {{showRatingFilter ? 'up' : 'down'}}"></view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 物品类型筛选 -->
+    <view class="filter-dropdown" wx:if="{{showTypeFilter}}">
+      <view class="filter-options">
+        <view class="option-item {{itemTypeFilter.includes(item) ? 'selected' : ''}}" 
+              wx:for="{{itemTypeOptions}}" 
+              wx:key="*this" 
+              bindtap="onItemTypeSelect" 
+              data-type="{{item}}">
+          {{item}}
+        </view>
+      </view>
+      <view class="filter-actions">
+        <view class="filter-reset" bindtap="resetTypeFilter">重置</view>
+        <view class="filter-confirm" bindtap="confirmTypeFilter">确定</view>
+      </view>
+    </view>
+
+    <!-- 时间范围筛选 -->
+    <view class="filter-dropdown" wx:if="{{showTimeFilter}}">
+      <view class="date-filter">
+        <view class="date-picker">
+          <picker mode="date" value="{{startDate}}" start="2023-01-01" end="2025-12-31" bindchange="onStartDateChange">
+            <view class="picker-item">
+              <text class="picker-label">开始日期</text>
+              <text class="picker-value">{{startDate || '请选择'}}</text>
+            </view>
+          </picker>
+        </view>
+        <view class="date-separator">至</view>
+        <view class="date-picker">
+          <picker mode="date" value="{{endDate}}" start="2023-01-01" end="2025-12-31" bindchange="onEndDateChange">
+            <view class="picker-item">
+              <text class="picker-label">结束日期</text>
+              <text class="picker-value">{{endDate || '请选择'}}</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+      <view class="filter-actions">
+        <view class="filter-reset" bindtap="resetTimeFilter">重置</view>
+        <view class="filter-confirm" bindtap="confirmTimeFilter">确定</view>
+      </view>
+    </view>
+
+    <!-- 价格区间筛选 -->
+    <view class="filter-dropdown" wx:if="{{showPriceFilter}}">
+      <view class="range-filter">
+        <view class="range-input-container">
+          <text class="range-label">最低价 (€)</text>
+          <input class="range-input" type="digit" value="{{minPrice}}" bindinput="onMinPriceInput" placeholder="最低价" />
+        </view>
+        <view class="range-separator">-</view>
+        <view class="range-input-container">
+          <text class="range-label">最高价 (€)</text>
+          <input class="range-input" type="digit" value="{{maxPrice}}" bindinput="onMaxPriceInput" placeholder="最高价" />
+        </view>
+      </view>
+      <view class="filter-actions">
+        <view class="filter-reset" bindtap="resetPriceFilter">重置</view>
+        <view class="filter-confirm" bindtap="confirmPriceFilter">确定</view>
+      </view>
+    </view>
+
+    <!-- 重量区间筛选 -->
+    <view class="filter-dropdown" wx:if="{{showWeightFilter}}">
+      <view class="range-filter">
+        <view class="range-input-container">
+          <text class="range-label">最小重量 (kg)</text>
+          <input class="range-input" type="digit" value="{{minWeight}}" bindinput="onMinWeightInput" placeholder="最小重量" />
+        </view>
+        <view class="range-separator">-</view>
+        <view class="range-input-container">
+          <text class="range-label">最大重量 (kg)</text>
+          <input class="range-input" type="digit" value="{{maxWeight}}" bindinput="onMaxWeightInput" placeholder="最大重量" />
+        </view>
+      </view>
+      <view class="filter-actions">
+        <view class="filter-reset" bindtap="resetWeightFilter">重置</view>
+        <view class="filter-confirm" bindtap="confirmWeightFilter">确定</view>
+      </view>
+    </view>
+
+    <!-- 评分筛选 -->
+    <view class="filter-dropdown" wx:if="{{showRatingFilter}}">
+      <view class="rating-filter">
+        <text class="rating-label">最低评分</text>
+        <slider class="rating-slider" min="1" max="5" step="0.5" value="{{minRating}}" show-value bindchange="onRatingChange" />
+      </view>
+      <view class="filter-actions">
+        <view class="filter-reset" bindtap="resetRatingFilter">重置</view>
+        <view class="filter-confirm" bindtap="confirmRatingFilter">确定</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{showSearchResults}}">
+    <!-- 结果数量统计 -->
+    <view class="result-count">
+      <text>找到 {{searchResults.length}} 条结果</text>
+      <view class="sort-btn" bindtap="toggleSortOptions">
+        <text>{{currentSort.text}}</text>
+        <view class="filter-arrow {{showSortOptions ? 'up' : 'down'}}"></view>
+      </view>
+    </view>
+
+    <!-- 排序选项 -->
+    <view class="sort-dropdown" wx:if="{{showSortOptions}}">
+      <view class="sort-option {{sortBy === 'recent' ? 'active' : ''}}" bindtap="onSortSelect" data-sort="recent">
+        <text>最新发布</text>
+        <icon wx:if="{{sortBy === 'recent'}}" type="success" size="16" color="#07c160"></icon>
+      </view>
+      <view class="sort-option {{sortBy === 'priceAsc' ? 'active' : ''}}" bindtap="onSortSelect" data-sort="priceAsc">
+        <text>价格从低到高</text>
+        <icon wx:if="{{sortBy === 'priceAsc'}}" type="success" size="16" color="#07c160"></icon>
+      </view>
+      <view class="sort-option {{sortBy === 'priceDesc' ? 'active' : ''}}" bindtap="onSortSelect" data-sort="priceDesc">
+        <text>价格从高到低</text>
+        <icon wx:if="{{sortBy === 'priceDesc'}}" type="success" size="16" color="#07c160"></icon>
+      </view>
+      <view class="sort-option {{sortBy === 'ratingDesc' ? 'active' : ''}}" bindtap="onSortSelect" data-sort="ratingDesc">
+        <text>评分从高到低</text>
+        <icon wx:if="{{sortBy === 'ratingDesc'}}" type="success" size="16" color="#07c160"></icon>
+      </view>
+    </view>
+
+    <!-- 搜索结果列表 -->
+    <view class="result-list">
+      <view class="empty-state" wx:if="{{searchResults.length === 0 && !searching}}">
+        <image class="empty-icon" src="/images/default-avatar.png"></image>
+        <text class="empty-text">没有找到相关结果</text>
+        <text class="empty-hint">尝试修改搜索条件或筛选项</text>
+      </view>
+
+      <!-- 行程信息结果列表 -->
+      <view class="list-item" wx:for="{{searchResults}}" wx:key="id" bindtap="onItemTap" data-id="{{item.id}}" data-type="{{item.type}}">
+        <view class="item-header">
+          <view class="route">
+            <view class="location-wrapper from-wrapper">
+              <text class="location from">{{item.fromLocation}}</text>
+            </view>
+            <view class="route-line">
+              <view class="route-line-bg"></view>
+              <view class="route-dot start"></view>
+              <view class="route-status {{item.type === 'need' ? 'needs' : ''}}">
+                <text class="status-text">{{item.type === 'need' ? '待接单' : (item.flightNumber || '航班号')}}</text>
+              </view>
+              <view class="route-dot end"></view>
+            </view>
+            <view class="location-wrapper to-wrapper">
+              <text class="location to">{{item.toLocation}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="item-info">
+          <!-- 针对行程信息 -->
+          <view wx:if="{{item.type === 'trip'}}">
+            <view class="info-row">
+              <text class="label">出发时间</text>
+              <view class="value time-value">{{item.departureTime}}</view>
+            </view>
+            <view class="info-row">
+              <text class="label">捎带价格</text>
+              <view class="value reward-value">{{item.rewardRequirement}}</view>
+            </view>
+            <view class="info-row">
+              <text class="label">可携带重量</text>
+              <view class="value">{{item.availableWeight}}</view>
+            </view>
+            <view class="info-row">
+              <text class="label">可接受物品</text>
+              <view class="value acceptable-items">
+                <text wx:for="{{item.acceptableItems}}" wx:for-item="typeItem" wx:key="*this" class="item-tag">{{typeItem}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 针对捎带需求 -->
+          <view wx:if="{{item.type === 'need'}}">
+            <view class="info-row">
+              <text class="label">报酬</text>
+              <view class="value reward-value">{{item.reward}}</view>
+            </view>
+            <view class="info-row">
+              <text class="label">物品</text>
+              <view class="value item-type-container">
+                <text wx:for="{{item.itemType}}" wx:for-item="typeItem" wx:key="*this" class="item-type">{{typeItem}}</text>
+              </view>
+            </view>
+            <view class="info-row">
+              <text class="label">重量</text>
+              <view class="value">{{item.weight}}</view>
+            </view>
+            <view class="info-row">
+              <text class="label">期望时间</text>
+              <view class="value time-value">{{item.expectedTime}}</view>
+            </view>
+          </view>
+        </view>
+        <view class="item-footer">
+          <view class="publisher">
+            <image class="avatar" src="{{item.type === 'need' ? item.publisher.avatar : item.traveler.avatar}}"></image>
+            <text class="name">{{item.type === 'need' ? item.publisher.name : item.traveler.name}}</text>
+            <text class="rating">{{item.type === 'need' ? item.publisher.rating : item.traveler.rating}}分</text>
+          </view>
+          <text class="publish-time">{{item.publishTime || '刚刚发布'}}</text>
+        </view>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="loading" wx:if="{{searching}}">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">搜索中...</text>
+      </view>
+      <view class="no-more" wx:if="{{!hasMore && !searching && searchResults.length > 0}}">
+        <text class="no-more-text">没有更多结果了</text>
+        <view class="divider"></view>
+      </view>
+    </view>
+  </view>
+</view> 

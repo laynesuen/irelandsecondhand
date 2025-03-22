@@ -1,0 +1,81 @@
+<view class="container">
+  <!-- 用户信息区域 -->
+  <view class="user-section">
+    <view class="user-info" wx:if="{{isLoggedIn && userInfo}}">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}"></image>
+      <view class="user-detail">
+        <view class="nickname">{{userInfo.nickName || '微信用户'}}</view>
+        <view class="user-id">用户ID: {{userInfo._openid || 'Undefined'}}</view>
+      </view>
+    </view>
+    
+    <view class="not-login" wx:else>
+      <image class="default-avatar" src="/images/default-avatar.png"></image>
+      <view class="login-tip">点击登录</view>
+      <button class="login-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo">微信登录</button>
+    </view>
+  </view>
+  
+  <!-- 功能区域 -->
+  <view class="function-section">
+    <view class="section-title">我的服务</view>
+    
+    <!-- 我的行程 -->
+    <view class="function-item" bindtap="goToMyTrips">
+      <view class="function-icon">
+        <image src="/images/icon-trips.png" mode="aspectFit"></image>
+      </view>
+      <view class="function-text">
+        <text>我的行程</text>
+      </view>
+      <view class="arrow">
+        <text class="arrow-icon">></text>
+      </view>
+    </view>
+    
+    <!-- 我的评价 -->
+    <view class="function-item" bindtap="goToMyReviews">
+      <view class="function-icon">
+        <image src="/images/icon-reviews.png" mode="aspectFit"></image>
+      </view>
+      <view class="function-text">
+        <text>我的评价</text>
+      </view>
+      <view class="arrow">
+        <text class="arrow-icon">></text>
+      </view>
+    </view>
+    
+    <!-- 联系客服 -->
+    <view class="function-item">
+      <view class="function-icon">
+        <image src="/images/icon-service.png" mode="aspectFit"></image>
+      </view>
+      <view class="function-text">
+        <text>联系客服</text>
+      </view>
+      <view class="arrow">
+        <button class="contact-btn" open-type="contact">联系客服</button>
+        <text class="arrow-icon">></text>
+      </view>
+    </view>
+    
+    <!-- 关于我们 -->
+    <view class="function-item" bindtap="showAboutUs">
+      <view class="function-icon">
+        <image src="/images/icon-about.png" mode="aspectFit"></image>
+      </view>
+      <view class="function-text">
+        <text>关于我们</text>
+      </view>
+      <view class="arrow">
+        <text class="arrow-icon">></text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 退出登录 -->
+  <view class="logout-section" wx:if="{{isLoggedIn}}">
+    <button class="logout-btn" bindtap="logout">退出登录</button>
+  </view>
+</view> 

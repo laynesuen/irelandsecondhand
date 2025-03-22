@@ -1,10 +1,8 @@
-const cloud = require('wx-server-sdk');
-
 /**
  * 获取实时汇率
  * @returns {Promise} 返回欧元兑人民币汇率
  */
-export const getExchangeRate = async () => {
+const getExchangeRate = async () => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'exchange',
@@ -26,7 +24,7 @@ export const getExchangeRate = async () => {
 /**
  * 货币转换
  */
-export const convertCurrency = async (amount, from, to) => {
+const convertCurrency = async (amount, from, to) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'exchange',
@@ -51,7 +49,7 @@ export const convertCurrency = async (amount, from, to) => {
 /**
  * 批量货币转换
  */
-export const batchConvertCurrency = async (amounts, from, to) => {
+const batchConvertCurrency = async (amounts, from, to) => {
   try {
     const res = await wx.cloud.callFunction({
       name: 'exchange',

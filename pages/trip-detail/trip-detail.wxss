@@ -1,0 +1,325 @@
+/* pages/trip-detail/trip-detail.wxss */
+
+.container {
+  padding: 24rpx;
+  color: #333;
+}
+
+/* 行程信息卡片 */
+.trip-info-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.status {
+  padding: 6rpx 16rpx;
+  font-size: 24rpx;
+  border-radius: 30rpx;
+  background-color: #e0e0e0;
+  color: #666;
+}
+
+.status.active {
+  background-color: #e3f2e1;
+  color: #3cc51f;
+}
+
+.status.ongoing {
+  background-color: #fff0c5;
+  color: #ffa000;
+}
+
+.status.completed {
+  background-color: #e1f5fe;
+  color: #0288d1;
+}
+
+.status.cancelled {
+  background-color: #ffebee;
+  color: #e53935;
+}
+
+.trip-id {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 路线展示 */
+.route-container {
+  margin-bottom: 24rpx;
+  padding: 24rpx 0;
+  position: relative;
+}
+
+.location-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 32rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.location-item:last-child {
+  margin-bottom: 0;
+}
+
+.location-icon {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  margin-top: 8rpx;
+}
+
+.location-icon.start {
+  background-color: #4caf50;
+}
+
+.location-icon.end {
+  background-color: #f44336;
+}
+
+.location-detail {
+  flex: 1;
+}
+
+.location-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.location-address {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.route-line {
+  position: absolute;
+  left: 15rpx;
+  top: 40rpx;
+  bottom: 40rpx;
+  width: 2rpx;
+  background-color: #e0e0e0;
+  z-index: 0;
+}
+
+/* 信息行 */
+.info-row {
+  display: flex;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+}
+
+.info-label {
+  color: #666;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.info-label::after {
+  content: '：';
+}
+
+.info-value {
+  color: #333;
+  flex: 1;
+}
+
+.weight-value {
+  color: #0288d1;
+}
+
+.item-tag {
+  display: inline-block;
+  background-color: #f1f8e9;
+  color: #7cb342;
+  font-size: 24rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  margin-right: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+/* 地图部分 */
+.map-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 16rpx;
+  color: #333;
+}
+
+.route-map {
+  width: 100%;
+  height: 500rpx;
+  border-radius: 12rpx;
+}
+
+.map-controls {
+  position: absolute;
+  right: 32rpx;
+  bottom: 130rpx;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.control-btn {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #fff;
+  border-radius: 50%;
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.control-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 行程进度 */
+.progress-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.progress-timeline {
+  padding: 24rpx 0;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 100rpx;
+}
+
+.progress-dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.progress-item.completed .progress-dot {
+  background-color: #4caf50;
+}
+
+.progress-line {
+  position: absolute;
+  left: 12rpx;
+  top: 0;
+  bottom: 0;
+  width: 2rpx;
+  background-color: #e0e0e0;
+  z-index: 0;
+}
+
+.progress-line.completed {
+  background-color: #4caf50;
+}
+
+.progress-text {
+  font-size: 28rpx;
+  margin-right: 24rpx;
+  flex: 1;
+}
+
+.progress-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.progress-item.pending .progress-text,
+.progress-item.pending .progress-time {
+  color: #999;
+}
+
+.progress-item.completed .progress-text {
+  color: #333;
+  font-weight: bold;
+}
+
+/* 按钮区域 */
+.action-btns {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16rpx 40rpx;
+}
+
+.action-btn {
+  flex: 1;
+  margin: 0 16rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  padding: 20rpx 0;
+  font-weight: normal;
+  border: none;
+}
+
+.action-btn.primary {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.action-btn.secondary {
+  background-color: #ff9800;
+  color: #fff;
+}
+
+.action-btn.warn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300rpx;
+}
+
+.spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(76, 175, 80, 0.1);
+  border-top-color: #4caf50;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

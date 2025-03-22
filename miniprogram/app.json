@@ -6,7 +6,12 @@
     "pages/profile/profile",
     "pages/my-trips/my-trips",
     "pages/messages/messages",
-    "pages/chat/chat"
+    "pages/chat/chat",
+    "pages/order-detail/order-detail",
+    "pages/orders/orders",
+    "pages/review/review",
+    "pages/reviews/reviews",
+    "pages/search/search"
   ],
   "window": {
     "backgroundTextStyle": "light",

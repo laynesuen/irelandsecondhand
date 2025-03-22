@@ -1,0 +1,120 @@
+<!--pages/trip-detail/trip-detail.wxml-->
+<view class="container">
+  <!-- 行程基本信息 -->
+  <view class="trip-info-card">
+    <view class="header">
+      <view class="status {{trip.status}}">{{trip.statusText}}</view>
+      <view class="trip-id">ID: {{trip.id}}</view>
+    </view>
+    
+    <view class="route-container">
+      <view class="location-item">
+        <view class="location-icon start"></view>
+        <view class="location-detail">
+          <view class="location-name">{{trip.fromLocation}}</view>
+          <view class="location-address">{{trip.fromAddress}}</view>
+        </view>
+      </view>
+      
+      <view class="route-line"></view>
+      
+      <view class="location-item">
+        <view class="location-icon end"></view>
+        <view class="location-detail">
+          <view class="location-name">{{trip.toLocation}}</view>
+          <view class="location-address">{{trip.toAddress}}</view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="info-row">
+      <view class="info-label">出发时间</view>
+      <view class="info-value">{{trip.departureTime}}</view>
+    </view>
+    
+    <view class="info-row">
+      <view class="info-label">预计到达</view>
+      <view class="info-value">{{trip.estimatedArrivalTime}}</view>
+    </view>
+    
+    <view class="info-row">
+      <view class="info-label">联系方式</view>
+      <view class="info-value">{{trip.contactInfo}}</view>
+    </view>
+    
+    <view class="info-row">
+      <view class="info-label">可携带重量</view>
+      <view class="info-value weight-value">{{trip.availableWeight}}</view>
+    </view>
+    
+    <view class="info-row">
+      <view class="info-label">可接受物品</view>
+      <view class="info-value">
+        <block wx:for="{{trip.acceptableItems}}" wx:key="*this">
+          <text class="item-tag">{{item}}</text>
+        </block>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 地图区域 -->
+  <view class="map-section">
+    <view class="section-title">行程路线</view>
+    <map class="route-map" 
+         id="routeMap"
+         latitude="{{mapInfo.latitude}}" 
+         longitude="{{mapInfo.longitude}}" 
+         scale="{{mapInfo.scale}}"
+         markers="{{mapInfo.markers}}"
+         polyline="{{mapInfo.polyline}}"
+         show-location="true"
+         bindmarkertap="onMarkerTap"
+         bindregionchange="onRegionChange">
+    </map>
+    <view class="map-controls">
+      <view class="control-btn" bindtap="openInMapApp">
+        <image src="/images/icons/navigate.png" class="control-icon"></image>
+        <text>导航</text>
+      </view>
+      <view class="control-btn" bindtap="zoomIn">
+        <image src="/images/icons/plus.png" class="control-icon"></image>
+      </view>
+      <view class="control-btn" bindtap="zoomOut">
+        <image src="/images/icons/minus.png" class="control-icon"></image>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 行程进度 -->
+  <view class="progress-section" wx:if="{{trip.status === 'ongoing'}}">
+    <view class="section-title">行程进度</view>
+    <view class="progress-timeline">
+      <view class="progress-item {{trip.progress >= 1 ? 'completed' : ''}}">
+        <view class="progress-dot"></view>
+        <view class="progress-text">开始行程</view>
+        <view class="progress-time">{{trip.startTime || '--'}}</view>
+      </view>
+      <view class="progress-line {{trip.progress >= 1 ? 'completed' : ''}}"></view>
+      
+      <view class="progress-item {{trip.progress >= 2 ? 'completed' : 'pending'}}">
+        <view class="progress-dot"></view>
+        <view class="progress-text">途中</view>
+        <view class="progress-time">{{trip.midwayTime || '--'}}</view>
+      </view>
+      <view class="progress-line {{trip.progress >= 2 ? 'completed' : ''}}"></view>
+      
+      <view class="progress-item {{trip.progress >= 3 ? 'completed' : 'pending'}}">
+        <view class="progress-dot"></view>
+        <view class="progress-text">到达目的地</view>
+        <view class="progress-time">{{trip.arrivalTime || '--'}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 操作按钮区域 -->
+  <view class="action-btns">
+    <button class="action-btn primary" bindtap="contactCarrier">联系发布者</button>
+    <button class="action-btn secondary" wx:if="{{trip.status === 'active'}}" bindtap="orderService">预约捎带</button>
+    <button class="action-btn warn" wx:if="{{isPublisher && trip.status === 'active'}}" bindtap="cancelTrip">取消行程</button>
+  </view>
+</view>

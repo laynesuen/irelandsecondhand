@@ -220,3 +220,19 @@
   background: #1989fa;
   color: #fff;
 }
+
+/* 物流跟踪按钮 */
+.logistics-actions {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 16rpx;
+}
+
+.track-btn {
+  background-color: #1976d2;
+  color: white;
+  padding: 12rpx 0;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+  margin: 0;
+}

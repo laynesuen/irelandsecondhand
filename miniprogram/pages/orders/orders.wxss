@@ -1,0 +1,279 @@
+/* 容器样式 */
+.container {
+  padding: 0 0 20rpx 0;
+  min-height: 100vh;
+  background-color: #f7f7f7;
+}
+
+/* 未登录部分样式 */
+.not-login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 150rpx;
+}
+
+.not-login-icon {
+  width: 180rpx;
+  height: 180rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.6;
+}
+
+.not-login-text {
+  font-size: 32rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.login-btn {
+  width: 240rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  background-color: #4a6fa1;
+  color: #fff;
+  font-size: 30rpx;
+  border-radius: 40rpx;
+}
+
+/* 筛选栏样式 */
+.filter-bar {
+  width: 100%;
+  height: 100rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.filter-scroll {
+  width: 100%;
+  height: 100rpx;
+  white-space: nowrap;
+  display: flex;
+}
+
+.filter-group {
+  display: inline-flex;
+  padding: 0 20rpx;
+  height: 100%;
+  align-items: center;
+}
+
+.filter-group:first-child {
+  border-right: 1rpx solid #eee;
+}
+
+.filter-item {
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #666;
+  margin-right: 16rpx;
+  border-radius: 30rpx;
+  background-color: #f5f5f5;
+  transition: all 0.2s;
+}
+
+.filter-item.active {
+  background-color: #4a6fa1;
+  color: #fff;
+}
+
+/* 加载中样式 */
+.loading-container {
+  padding: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  background-color: #4a6fa1;
+  margin: 0 12rpx;
+  opacity: 0.6;
+  animation: loading 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loading {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* 订单列表样式 */
+.order-list {
+  padding: 20rpx;
+}
+
+.order-item {
+  margin-bottom: 20rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.role-tag {
+  font-size: 26rpx;
+  color: #444;
+  background-color: #f0f0f0;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.order-status {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.trip-info {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.trip-route {
+  display: flex;
+  align-items: center;
+  font-size: 30rpx;
+  margin-bottom: 10rpx;
+}
+
+.trip-city {
+  font-weight: 500;
+}
+
+.trip-arrow {
+  margin: 0 16rpx;
+  color: #999;
+}
+
+.trip-date {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.order-info {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.info-value.price {
+  font-weight: 600;
+  color: #e64340;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+}
+
+.user-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+}
+
+.user-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.see-detail {
+  font-size: 26rpx;
+  color: #4a6fa1;
+}
+
+/* 加载更多样式 */
+.loading-more {
+  padding: 20rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-more {
+  text-align: center;
+  font-size: 26rpx;
+  color: #999;
+  padding: 20rpx;
+}
+
+/* 空订单样式 */
+.empty-orders {
+  padding-top: 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.empty-icon {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.7;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.empty-tip {
+  font-size: 26rpx;
+  color: #999;
+}

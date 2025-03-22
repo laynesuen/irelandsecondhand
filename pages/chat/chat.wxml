@@ -1,5 +1,13 @@
 <!-- pages/chat/chat.wxml -->
 <view class="chat-container">
+  <!-- 顶部搜索框 -->
+  <view class="search-bar" style="top: {{navHeight}}px;">
+    <view class="search-input-wrapper">
+      <icon type="search" size="14" color="#999"></icon>
+      <input class="search-input" placeholder="搜索聊天记录" bindinput="onSearchInput" confirm-type="search" bindconfirm="searchMessages"/>
+    </view>
+  </view>
+
   <!-- 用户发布信息 - 重新设计 -->
   <view class="user-posts-card" wx:if="{{userPosts.length > 0}}">
     <view class="post-header">
@@ -95,6 +103,42 @@
                      data-id="{{item.id}}"></image>
             </view>
             
+            <!-- 文件消息 -->
+            <view class="message-bubble file" wx:elif="{{item.type === 'file'}}">
+              <view class="file-content" bindtap="openFile" data-file="{{item.content}}">
+                <view class="file-icon">
+                  <icon type="download" size="36" color="{{item.isSelf ? '#ffffff' : '#4caf50'}}"></icon>
+                </view>
+                <view class="file-info">
+                  <view class="file-name">{{item.content.name}}</view>
+                  <view class="file-size">{{item.content.size}}</view>
+                </view>
+              </view>
+            </view>
+            
+            <!-- 语音消息 -->
+            <view class="message-bubble voice" wx:elif="{{item.type === 'voice'}}" bindtap="playVoice" data-voice="{{item.content}}" data-id="{{item.id}}">
+              <view class="voice-content">
+                <view class="voice-icon {{item.isPlaying ? 'playing' : ''}}">
+                  <icon type="sound" size="24" color="{{item.isSelf ? '#ffffff' : '#4caf50'}}"></icon>
+                </view>
+                <view class="voice-duration">{{item.content.duration}}''</view>
+              </view>
+            </view>
+            
+            <!-- 位置消息 -->
+            <view class="message-bubble location" wx:elif="{{item.type === 'location'}}" bindtap="openLocation" data-location="{{item.content}}">
+              <view class="location-content">
+                <view class="location-map">
+                  <image src="{{item.content.cover || 'https://apis.map.qq.com/ws/staticmap/v2/?center='+item.content.latitude+','+item.content.longitude+'&zoom=15&size=300*150&maptype=roadmap&markers=color:red|'+item.content.latitude+','+item.content.longitude+'&key=YOUR_MAP_KEY'}}" mode="aspectFill"></image>
+                </view>
+                <view class="location-info">
+                  <view class="location-name">{{item.content.name || '位置信息'}}</view>
+                  <view class="location-address">{{item.content.address || '点击查看详细位置'}}</view>
+                </view>
+              </view>
+            </view>
+            
             <!-- 订单消息 -->
             <view class="message-bubble order" wx:elif="{{item.type === 'order'}}">
               <view class="order-info">
@@ -121,6 +165,7 @@
             
             <view class="message-time">
               {{item.time}}
+              <text wx:if="{{item.isSelf && item.read}}" class="read-status">已读</text>
               <text class="typing-status" wx:if="{{!item.isSelf && index === messageList.length-1 && targetUser.typing}}">对方正在输入...</text>
             </view>
             
@@ -136,15 +181,28 @@
     </block>
   </scroll-view>
 
+  <!-- 快捷回复栏 -->
+  <view class="quick-reply-bar" wx:if="{{showQuickReply}}">
+    <scroll-view scroll-x="true" class="quick-reply-scroll">
+      <view class="quick-reply-list">
+        <view class="quick-reply-item" wx:for="{{quickReplies}}" wx:key="index" bindtap="sendQuickReply" data-reply="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
   <!-- 输入和功能面板区域 -->
   <view class="bottom-wrapper" style="bottom: {{keyboardHeight > 0 ? keyboardHeight + 'px' : '0'}}">
     <!-- 输入区域 -->
     <view class="input-area">
       <view class="input-box">
-        <!-- 功能按钮 -->
-        <view class="function-btn" catchtap="toggleFunctionPanel">
-          <text style="font-size: 28rpx; font-weight: bold;">···</text>
+        <!-- 语音/输入切换按钮 -->
+        <view class="voice-btn" bindtap="toggleVoiceInput">
+          <icon type="{{isVoiceMode ? 'keyboard' : 'sound'}}" size="24" color="#666"></icon>
         </view>
+        
+        <!-- 文本输入 -->
         <input 
           class="message-input" 
           value="{{inputMessage}}"
@@ -157,30 +215,72 @@
           bindfocus="onInputFocus"
           bindblur="onInputBlur"
           focus="{{inputFocus}}"
+          wx:if="{{!isVoiceMode}}"
         />
-        <view class="send-btn {{inputMessage ? 'active' : ''}}" catchtap="sendMessage">发送</view>
+        
+        <!-- 语音录制按钮 -->
+        <view
+          class="voice-record-btn"
+          bindtouchstart="startVoiceRecord"
+          bindtouchend="endVoiceRecord"
+          bindtouchmove="moveVoiceRecord"
+          wx:if="{{isVoiceMode}}"
+        >
+          {{isRecording ? '松开发送' : '按住说话'}}
+        </view>
+        
+        <!-- 功能按钮 -->
+        <view class="function-btn" catchtap="toggleFunctionPanel">
+          <text style="font-size: 28rpx; font-weight: bold;">···</text>
+        </view>
+        
+        <view class="send-btn {{inputMessage ? 'active' : ''}}" catchtap="sendMessage" wx:if="{{!isVoiceMode}}">发送</view>
       </view>
     </view>
 
     <!-- 功能面板 -->
     <view class="function-panel {{showFunctionPanel ? 'show' : ''}}" wx:if="{{showFunctionPanel}}">
-      <view class="function-item" catchtap="chooseImage">
-        <view class="function-icon">
-          <icon type="image" size="28" color="#3cc51f"></icon>
+      <view class="function-grid">
+        <view class="function-item" catchtap="chooseImage">
+          <view class="function-icon">
+            <icon type="image" size="28" color="#3cc51f"></icon>
+          </view>
+          <text class="function-text">图片</text>
         </view>
-        <text class="function-text">图片</text>
-      </view>
-      <view class="function-item" catchtap="shareOrder">
-        <view class="function-icon">
+        <view class="function-item" catchtap="chooseFile">
+          <view class="function-icon">
+            <icon type="document" size="28" color="#1e88e5"></icon>
+          </view>
+          <text class="function-text">文件</text>
         </view>
-        <text class="function-text">订单</text>
-      </view>
-      <view class="function-item" catchtap="shareLocation">
-        <view class="function-icon">
-          <icon type="location" size="28" color="#3cc51f"></icon>
+        <view class="function-item" catchtap="shareOrder">
+          <view class="function-icon">
+            <icon type="success" size="28" color="#ff9800"></icon>
+          </view>
+          <text class="function-text">订单</text>
         </view>
-        <text class="function-text">位置</text>
+        <view class="function-item" catchtap="shareLocation">
+          <view class="function-icon">
+            <icon type="location" size="28" color="#3cc51f"></icon>
+          </view>
+          <text class="function-text">位置</text>
+        </view>
+        <view class="function-item" catchtap="toggleQuickReply">
+          <view class="function-icon">
+            <icon type="info" size="28" color="#673ab7"></icon>
+          </view>
+          <text class="function-text">快捷回复</text>
+        </view>
       </view>
+    </view>
+  </view>
+  
+  <!-- 语音录制提示 -->
+  <view class="voice-recording-modal" wx:if="{{isRecording}}">
+    <view class="recording-content {{willCancel ? 'cancel' : ''}}">
+      <view class="recording-icon {{willCancel ? 'cancel' : ''}}"></view>
+      <view class="recording-text">{{willCancel ? '松开手指，取消发送' : '手指上滑，取消发送'}}</view>
+      <view class="recording-time" wx:if="{{!willCancel}}">{{recordingTime}}</view>
     </view>
   </view>
 </view>

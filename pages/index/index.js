@@ -226,7 +226,7 @@ Page({
   onSearchTap: function() {
     // 跳转到高级搜索页面
     wx.navigateTo({
-      url: '/pages/search/search?keyword=' + encodeURIComponent(this.data.searchKeyword)
+      url: `/pages/search/search?keyword=${encodeURIComponent(this.data.searchKeyword)}&type=${this.data.activeTab}`
     });
   },
   
@@ -234,7 +234,7 @@ Page({
   onSearchConfirm: function() {
     // 跳转到高级搜索页面
     wx.navigateTo({
-      url: '/pages/search/search?keyword=' + encodeURIComponent(this.data.searchKeyword)
+      url: `/pages/search/search?keyword=${encodeURIComponent(this.data.searchKeyword)}&type=${this.data.activeTab}`
     });
   },
   

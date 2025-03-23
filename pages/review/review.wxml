@@ -1,0 +1,97 @@
+<!-- pages/review/review.wxml -->
+<view class="review-container">
+  <!-- 加载中显示 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-animation"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <!-- 主要内容 -->
+  <block wx:else>
+    <!-- 用户信息卡片 -->
+    <view class="user-card">
+      <image class="user-avatar" src="{{targetUserInfo.avatar || '/images/default-avatar.png'}}"></image>
+      <view class="user-info">
+        <view class="user-name">{{targetUserInfo.name}}</view>
+        <view class="order-id">订单号：{{orderInfo.orderNumber}}</view>
+      </view>
+    </view>
+
+    <!-- 评分部分 -->
+    <view class="rating-section">
+      <view class="section-title">服务评分</view>
+      <view class="rating-container">
+        <slider 
+          class="rating-slider" 
+          min="1" 
+          max="5" 
+          step="1" 
+          value="{{rating}}" 
+          activeColor="#FFD700" 
+          backgroundColor="#E0E0E0"
+          block-size="28"
+          block-color="#FFD700"
+          bindchange="onRatingChange"
+        />
+        <view class="rating-display">
+          <text class="rating-number">{{rating}}</text>
+          <text class="rating-max">/5</text>
+        </view>
+      </view>
+      <view class="star-display">
+        <block wx:for="{{5}}" wx:key="index">
+          <view class="star {{index < rating ? 'active' : ''}}"></view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 标签选择 -->
+    <view class="tags-section">
+      <view class="section-title">评价标签 <text class="subtitle">(最多选择3个)</text></view>
+      <view class="tags-container">
+        <view 
+          wx:for="{{availableTags}}" 
+          wx:key="index" 
+          class="tag {{selectedTags.includes(item) ? 'active' : ''}}"
+          data-index="{{index}}"
+          bindtap="onTagTap"
+        >
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 评价内容 -->
+    <view class="content-section">
+      <view class="section-title">评价内容</view>
+      <view class="content-container">
+        <textarea 
+          class="content-input" 
+          placeholder="请输入您的评价内容，至少5个字"
+          placeholder-style="color: #999;"
+          maxlength="200"
+          bindinput="onContentInput"
+          value="{{content}}"
+          disabled="{{submitting}}"
+        ></textarea>
+        <view class="content-length">{{contentLength}}/200</view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button 
+      class="submit-button {{submitting ? 'disabled' : ''}}" 
+      disabled="{{submitting}}"
+      bindtap="submitReview"
+    >
+      {{submitting ? '提交中...' : '提交评价'}}
+    </button>
+  </block>
+
+  <!-- 加载失败显示 -->
+  <view class="error-container" wx:if="{{error}}">
+    <view class="error-icon"></view>
+    <view class="error-text">{{errorMsg || '加载失败，请重试'}}</view>
+    <button class="retry-button" bindtap="reload">重新加载</button>
+  </view>
+</view> 

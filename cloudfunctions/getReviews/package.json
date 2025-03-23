@@ -1,7 +1,7 @@
 {
   "name": "getReviews",
   "version": "1.0.0",
-  "description": "获取评价列表",
+  "description": "获取用户评价列表的云函数",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

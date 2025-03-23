@@ -1,7 +1,7 @@
 {
   "name": "createReview",
   "version": "1.0.0",
-  "description": "提交用户评价",
+  "description": "创建评价的云函数",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

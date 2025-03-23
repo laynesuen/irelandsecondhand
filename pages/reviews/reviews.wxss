@@ -1,0 +1,288 @@
+/* pages/reviews/reviews.wxss */
+
+/* 容器样式 */
+.reviews-container {
+  min-height: 100vh;
+  background-color: #f7f7f7;
+}
+
+/* 未登录提示样式 */
+.not-login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.not-login-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background-color: #eee;
+  margin-bottom: 30rpx;
+  position: relative;
+}
+
+.not-login-icon:before,
+.not-login-icon:after {
+  content: '';
+  position: absolute;
+  background-color: #ccc;
+}
+
+.not-login-icon:before {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  top: 20rpx;
+  left: 30rpx;
+}
+
+.not-login-icon:after {
+  width: 80rpx;
+  height: 40rpx;
+  border-radius: 40rpx 40rpx 0 0;
+  bottom: 20rpx;
+  left: 20rpx;
+}
+
+.not-login-text {
+  font-size: 30rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.login-button {
+  background-color: #1890ff;
+  color: white;
+  font-size: 30rpx;
+  padding: 12rpx 60rpx;
+  border-radius: 40rpx;
+}
+
+/* 选项卡样式 */
+.tabs {
+  display: flex;
+  position: relative;
+  background-color: white;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  font-size: 30rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab.active {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.tab-line {
+  position: absolute;
+  bottom: 0;
+  width: 50%;
+  height: 4rpx;
+  background-color: #1890ff;
+  transform: translateX(-50%);
+  transition: left 0.3s;
+}
+
+/* 评价列表样式 */
+.reviews-list {
+  padding: 20rpx;
+}
+
+/* 加载中样式 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 0;
+}
+
+.loading-animation {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #eee;
+  border-top: 4rpx solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  color: #999;
+  font-size: 26rpx;
+}
+
+/* 评价项样式 */
+.review-item {
+  background-color: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.user-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background-color: #eee;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.review-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.review-rating {
+  display: flex;
+  align-items: baseline;
+}
+
+.rating-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #FFD700;
+}
+
+.rating-max {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 4rpx;
+}
+
+.review-content {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
+
+.review-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 16rpx;
+}
+
+.tag {
+  padding: 6rpx 16rpx;
+  background-color: #f2f2f2;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #666;
+  margin-right: 16rpx;
+  margin-bottom: 10rpx;
+}
+
+.review-order {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 加载更多样式 */
+.load-more {
+  text-align: center;
+  margin: 30rpx 0;
+}
+
+.load-more-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 26rpx;
+}
+
+.load-more-loading {
+  width: 30rpx;
+  height: 30rpx;
+  border: 2rpx solid #eee;
+  border-top: 2rpx solid #999;
+  border-radius: 50%;
+  margin-right: 10rpx;
+  animation: spin 1s linear infinite;
+}
+
+.no-more {
+  text-align: center;
+  color: #999;
+  font-size: 26rpx;
+  margin: 30rpx 0;
+}
+
+/* 空状态样式 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  background-color: #eee;
+  margin-bottom: 30rpx;
+  position: relative;
+}
+
+.empty-icon:before,
+.empty-icon:after {
+  content: '';
+  position: absolute;
+  background-color: #ddd;
+}
+
+.empty-icon:before {
+  width: 80rpx;
+  height: 20rpx;
+  top: 40rpx;
+  left: 20rpx;
+}
+
+.empty-icon:after {
+  width: 60rpx;
+  height: 20rpx;
+  top: 70rpx;
+  left: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+} 

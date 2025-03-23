@@ -20,27 +20,48 @@ exports.main = async (event, context) => {
     }
   }
   
-  const { orderId, targetUserId, content, rating, tags } = event
+  // 获取参数
+  const { 
+    orderId, 
+    targetUserId, 
+    content, 
+    rating,
+    tags = []
+  } = event
   
-  // 参数验证
-  if (!orderId || !targetUserId || !content || !rating) {
+  // 校验参数
+  if (!orderId) {
     return {
       code: 400,
-      message: '参数不完整'
+      message: '缺少订单ID参数'
     }
   }
   
-  // 检查评分范围
-  if (rating < 1 || rating > 5) {
+  if (!targetUserId) {
     return {
       code: 400,
-      message: '评分范围应为1-5'
+      message: '缺少目标用户ID参数'
+    }
+  }
+  
+  if (!content) {
+    return {
+      code: 400,
+      message: '评价内容不能为空'
+    }
+  }
+  
+  if (!rating || rating < 1 || rating > 5) {
+    return {
+      code: 400,
+      message: '评分必须在1-5之间'
     }
   }
   
   try {
-    // 检查订单是否存在
+    // 获取订单信息，确认订单存在且用户有权对此订单进行评价
     const orderRes = await db.collection('orders').doc(orderId).get()
+    
     if (!orderRes.data) {
       return {
         code: 404,
@@ -50,80 +71,89 @@ exports.main = async (event, context) => {
     
     const order = orderRes.data
     
-    // 验证订单是否属于当前用户
-    if (order.buyerId !== openid && order.sellerId !== openid) {
+    // 确认用户为此订单的买家或卖家
+    if (order.buyerOpenid !== openid && order.sellerOpenid !== openid) {
       return {
         code: 403,
-        message: '无权评价此订单'
+        message: '无权对此订单进行评价'
       }
     }
     
-    // 验证评价目标用户是否为订单相关方
+    // 确认订单已完成
+    if (order.status !== 'completed') {
+      return {
+        code: 400,
+        message: '只能对已完成的订单进行评价'
+      }
+    }
+    
+    // 确认目标用户是此订单的参与者
     if (targetUserId !== order.buyerId && targetUserId !== order.sellerId) {
       return {
-        code: 403,
-        message: '无法评价非订单参与方'
+        code: 400,
+        message: '目标用户不是此订单的参与者'
       }
     }
     
-    // 检查是否已评价
-    const existingReview = await db.collection('reviews').where({
-      orderId,
-      userId: openid,
-      targetUserId
-    }).get()
+    // 确认用户没有对此订单进行过评价
+    const existingReview = await db.collection('reviews')
+      .where({
+        orderId: orderId,
+        creatorOpenid: openid
+      })
+      .get()
     
     if (existingReview.data && existingReview.data.length > 0) {
       return {
         code: 400,
-        message: '已提交过评价'
+        message: '已对此订单进行过评价'
       }
     }
     
     // 创建评价
     const reviewData = {
       orderId,
-      userId: openid,
       targetUserId,
       content,
       rating,
-      tags: tags || [],
-      createTime: db.serverDate()
+      tags,
+      creatorOpenid: openid,
+      creatorId: order.buyerOpenid === openid ? order.buyerId : order.sellerId,
+      createTime: db.serverDate(),
+      status: 'active'
     }
     
-    const result = await db.collection('reviews').add({
+    const reviewRes = await db.collection('reviews').add({
       data: reviewData
     })
     
     // 更新订单评价状态
-    let updateField = {}
-    if (openid === order.buyerId) {
-      updateField = { buyerReviewed: true }
-    } else {
-      updateField = { sellerReviewed: true }
-    }
+    const updateField = order.buyerOpenid === openid 
+      ? { buyerReviewed: true } 
+      : { sellerReviewed: true }
     
     await db.collection('orders').doc(orderId).update({
       data: updateField
     })
     
-    // 计算用户新的平均评分
+    // 更新用户的评分
+    // 1. 获取目标用户的所有评价
     const userReviews = await db.collection('reviews')
       .where({
-        targetUserId
+        targetUserId: targetUserId,
+        status: 'active'
       })
       .get()
     
     if (userReviews.data && userReviews.data.length > 0) {
-      const ratings = userReviews.data.map(review => review.rating)
-      const avgRating = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+      // 2. 计算平均评分
+      const totalRating = userReviews.data.reduce((sum, review) => sum + review.rating, 0)
+      const averageRating = (totalRating / userReviews.data.length).toFixed(1)
       
-      // 更新用户的平均评分
-      await db.collection('users').where({
-        _openid: targetUserId
-      }).update({
+      // 3. 更新用户评分
+      await db.collection('users').doc(targetUserId).update({
         data: {
-          avgRating: parseFloat(avgRating.toFixed(1)),
+          rating: averageRating,
           reviewCount: userReviews.data.length
         }
       })
@@ -131,17 +161,17 @@ exports.main = async (event, context) => {
     
     return {
       code: 200,
-      message: '评价提交成功',
+      message: '评价成功',
       data: {
-        reviewId: result._id
+        reviewId: reviewRes._id
       }
     }
+    
   } catch (err) {
-    console.error('[createReview]', err)
+    console.error('创建评价失败', err)
     return {
       code: 500,
-      message: '评价提交失败',
-      error: err.message
+      message: '评价失败，请稍后重试'
     }
   }
 } 

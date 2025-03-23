@@ -339,11 +339,12 @@ Page({
   },
   
   /**
-   * 前往评价
+   * 前往评价页面
    */
-  gotoReview() {
+  goToReview() {
+    const { orderId, orderType } = this.data;
     wx.navigateTo({
-      url: `/pages/review/review?orderId=${this.data.orderId}&type=${this.data.orderData.orderType}`
+      url: `/pages/review/review?orderId=${orderId}&type=${orderType}`,
     });
   },
 

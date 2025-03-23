@@ -289,5 +289,13 @@ Page({
         }
       }
     });
+  },
+  /**
+   * 跳转到我的评价
+   */
+  navigateToReviews() {
+    wx.navigateTo({
+      url: '/pages/reviews/reviews'
+    });
   }
 })

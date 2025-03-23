@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/search/search",
     "pages/trip-list/trip-list",
     "pages/trip-detail/trip-detail",
     "pages/publish/publish",
@@ -38,7 +39,9 @@
     "pages/reset-password/reset-password",
     "pages/user-agreement/user-agreement",
     "pages/verification/verification",
-    "pages/logistics-tracking/logistics-tracking"
+    "pages/logistics-tracking/logistics-tracking",
+    "pages/review/review",
+    "pages/reviews/reviews"
   ],
   "window": {
     "backgroundTextStyle": "light",

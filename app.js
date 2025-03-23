@@ -9,7 +9,8 @@ App({
     locale: 'zh-CN', // 默认语言设置
     webSocketConnected: false, // WebSocket连接状态
     unreadMessageCount: 0, // 未读消息数量
-    realNameAuthRequired: true // 是否需要实名认证才能发布信息
+    realNameAuthRequired: true, // 是否需要实名认证才能发布信息
+    api: {}
   },
   onLaunch: function() {
     // 初始化云开发环境
@@ -61,6 +62,14 @@ App({
     setTimeout(() => {
       this.initWebSocket();
     }, 1000);
+
+    // 导入评价API
+    const reviewApi = require('./utils/api/review')
+
+    // 将评价API添加到全局API对象
+    if (typeof this.globalData.api === 'object') {
+      this.globalData.api.review = reviewApi
+    }
   },
   
   // 初始化用户语言设置

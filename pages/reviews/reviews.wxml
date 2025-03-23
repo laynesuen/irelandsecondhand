@@ -1,0 +1,131 @@
+<!-- pages/reviews/reviews.wxml -->
+<view class="reviews-container">
+  <!-- 未登录提示 -->
+  <view class="not-login-container" wx:if="{{!isLoggedIn}}">
+    <view class="not-login-icon"></view>
+    <view class="not-login-text">登录后查看您的评价记录</view>
+    <button class="login-button" bindtap="onLogin">登录</button>
+  </view>
+
+  <!-- 已登录内容 -->
+  <block wx:else>
+    <!-- 选项卡导航 -->
+    <view class="tabs">
+      <view class="tab {{currentTab === 0 ? 'active' : ''}}" data-tab="0" bindtap="switchTab">
+        收到的评价
+      </view>
+      <view class="tab {{currentTab === 1 ? 'active' : ''}}" data-tab="1" bindtap="switchTab">
+        发出的评价
+      </view>
+      <view class="tab-line" style="left: {{currentTab === 0 ? '25%' : '75%'}}"></view>
+    </view>
+
+    <!-- 收到的评价列表 -->
+    <view class="reviews-list" hidden="{{currentTab !== 0}}">
+      <!-- 加载中 -->
+      <view class="loading-container" wx:if="{{receivedLoading}}">
+        <view class="loading-animation"></view>
+        <view class="loading-text">加载中...</view>
+      </view>
+
+      <!-- 评价列表 -->
+      <block wx:elif="{{receivedReviews.length > 0}}">
+        <view
+          class="review-item"
+          wx:for="{{receivedReviews}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="goToReviewDetail"
+        >
+          <view class="review-header">
+            <image class="user-avatar" src="{{item.user.avatar}}"></image>
+            <view class="user-info">
+              <view class="user-name">{{item.user.name}}</view>
+              <view class="review-time">{{item.createTime}}</view>
+            </view>
+            <view class="review-rating">
+              <text class="rating-text">{{item.rating}}</text>
+              <text class="rating-max">/5</text>
+            </view>
+          </view>
+          <view class="review-content">{{item.content}}</view>
+          <view class="review-tags" wx:if="{{item.tags.length > 0}}">
+            <view class="tag" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag">{{tag}}</view>
+          </view>
+          <view class="review-order">订单号: {{item.orderId}}</view>
+        </view>
+
+        <!-- 加载更多 -->
+        <view class="load-more" wx:if="{{receivedHasMore}}">
+          <view class="load-more-text" bindtap="loadMoreReviews" data-type="received">
+            <view class="load-more-loading" wx:if="{{receivedLoadingMore}}"></view>
+            <text>{{receivedLoadingMore ? '加载中...' : '加载更多'}}</text>
+          </view>
+        </view>
+        <view class="no-more" wx:else>
+          <text>没有更多评价了</text>
+        </view>
+      </block>
+
+      <!-- 空状态 -->
+      <view class="empty-container" wx:else>
+        <view class="empty-icon"></view>
+        <view class="empty-text">暂无收到的评价</view>
+      </view>
+    </view>
+
+    <!-- 发出的评价列表 -->
+    <view class="reviews-list" hidden="{{currentTab !== 1}}">
+      <!-- 加载中 -->
+      <view class="loading-container" wx:if="{{createdLoading}}">
+        <view class="loading-animation"></view>
+        <view class="loading-text">加载中...</view>
+      </view>
+
+      <!-- 评价列表 -->
+      <block wx:elif="{{createdReviews.length > 0}}">
+        <view
+          class="review-item"
+          wx:for="{{createdReviews}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="goToReviewDetail"
+        >
+          <view class="review-header">
+            <image class="user-avatar" src="{{item.user.avatar}}"></image>
+            <view class="user-info">
+              <view class="user-name">{{item.user.name}}</view>
+              <view class="review-time">{{item.createTime}}</view>
+            </view>
+            <view class="review-rating">
+              <text class="rating-text">{{item.rating}}</text>
+              <text class="rating-max">/5</text>
+            </view>
+          </view>
+          <view class="review-content">{{item.content}}</view>
+          <view class="review-tags" wx:if="{{item.tags.length > 0}}">
+            <view class="tag" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag">{{tag}}</view>
+          </view>
+          <view class="review-order">订单号: {{item.orderId}}</view>
+        </view>
+
+        <!-- 加载更多 -->
+        <view class="load-more" wx:if="{{createdHasMore}}">
+          <view class="load-more-text" bindtap="loadMoreReviews" data-type="created">
+            <view class="load-more-loading" wx:if="{{createdLoadingMore}}"></view>
+            <text>{{createdLoadingMore ? '加载中...' : '加载更多'}}</text>
+          </view>
+        </view>
+        <view class="no-more" wx:else>
+          <text>没有更多评价了</text>
+        </view>
+      </block>
+
+      <!-- 空状态 -->
+      <view class="empty-container" wx:else>
+        <view class="empty-icon"></view>
+        <view class="empty-text">暂无发出的评价</view>
+      </view>
+    </view>
+  </block>
+</view> 

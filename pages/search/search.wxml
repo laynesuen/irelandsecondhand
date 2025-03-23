@@ -1,0 +1,351 @@
+<!-- pages/search/search.wxml -->
+<view class="search-container">
+  <!-- 搜索头部 -->
+  <view class="search-header">
+    <view class="search-bar">
+      <input class="search-input" placeholder="搜索目的地、物品类型" bindinput="onKeywordInput" value="{{keyword}}" confirm-type="search" bindconfirm="performSearch"/>
+      <view class="search-icon-wrapper" bindtap="performSearch">
+        <icon class="search-icon" type="search" size="18" color="#666"></icon>
+      </view>
+    </view>
+    <view class="filter-button" bindtap="showFilter">
+      <icon type="filter" size="20" color="#4caf50"></icon>
+      <text>筛选</text>
+    </view>
+  </view>
+  
+  <!-- 类型切换 -->
+  <view class="search-tabs">
+    <view class="tab {{searchType === 1 ? 'active' : ''}}" bindtap="switchSearchType" data-type="1">行程信息</view>
+    <view class="tab {{searchType === 0 ? 'active' : ''}}" bindtap="switchSearchType" data-type="0">捎带需求</view>
+  </view>
+  
+  <!-- 筛选条件展示 -->
+  <view class="filter-tags" wx:if="{{filter.fromLocation || filter.toLocation || filter.departureTimeStart || filter.itemType.length > 0 || filter.minWeight || filter.maxWeight || filter.minPrice || filter.maxPrice}}">
+    <scroll-view scroll-x="true" class="filter-tags-scroll">
+      <view class="filter-tag" wx:if="{{filter.fromLocation}}">
+        出发地: {{filter.fromLocation}}
+        <icon class="tag-close" type="clear" size="12" color="#999" data-field="fromLocation" bindtap="onFilterChange" data-value=""></icon>
+      </view>
+      
+      <view class="filter-tag" wx:if="{{filter.toLocation}}">
+        目的地: {{filter.toLocation}}
+        <icon class="tag-close" type="clear" size="12" color="#999" data-field="toLocation" bindtap="onFilterChange" data-value=""></icon>
+      </view>
+      
+      <view class="filter-tag" wx:if="{{filter.departureTimeStart}}">
+        出发时间: {{filter.departureTimeStart}}
+        <icon class="tag-close" type="clear" size="12" color="#999" data-field="departureTimeStart" bindtap="onFilterChange" data-value=""></icon>
+      </view>
+      
+      <view class="filter-tag" wx:if="{{filter.departureTimeEnd}}">
+        截止时间: {{filter.departureTimeEnd}}
+        <icon class="tag-close" type="clear" size="12" color="#999" data-field="departureTimeEnd" bindtap="onFilterChange" data-value=""></icon>
+      </view>
+      
+      <view class="filter-tag" wx:if="{{filter.minPrice || filter.maxPrice}}">
+        价格: {{filter.minPrice || '0'}}€ - {{filter.maxPrice || '不限'}}€
+        <icon class="tag-close" type="clear" size="12" color="#999" bindtap="clearPriceFilter"></icon>
+      </view>
+      
+      <view class="filter-tag" wx:if="{{filter.minWeight || filter.maxWeight}}">
+        重量: {{filter.minWeight || '0'}}kg - {{filter.maxWeight || '不限'}}kg
+        <icon class="tag-close" type="clear" size="12" color="#999" bindtap="clearWeightFilter"></icon>
+      </view>
+      
+      <view class="filter-tag" wx:if="{{filter.itemType.length > 0}}">
+        物品类型: {{filter.itemType.length}}项
+        <icon class="tag-close" type="clear" size="12" color="#999" bindtap="clearItemTypeFilter"></icon>
+      </view>
+      
+      <view class="clear-all-filter" bindtap="resetFilter">清除全部</view>
+    </scroll-view>
+  </view>
+  
+  <!-- 搜索结果展示 -->
+  <view class="search-results">
+    <!-- 空结果提示 -->
+    <view class="empty-state" wx:if="{{searchResults.length === 0 && !loading}}">
+      <image class="empty-icon" src="/images/default-avatar.png"></image>
+      <text class="empty-text">未找到符合条件的结果</text>
+      <button class="refresh-btn" bindtap="resetFilter">重置筛选条件</button>
+    </view>
+    
+    <!-- 捎带需求结果列表 -->
+    <view wx:if="{{searchType === 0 && searchResults.length > 0}}" class="result-list">
+      <view class="list-item" wx:for="{{searchResults}}" wx:key="id" bindtap="onItemTap" data-id="{{item.id}}">
+        <view class="item-header">
+          <view class="route">
+            <view class="location-wrapper from-wrapper">
+              <text class="location from">{{item.fromLocation}}</text>
+            </view>
+            <view class="route-line">
+              <view class="route-line-bg"></view>
+              <view class="route-dot start"></view>
+              <view class="route-status needs">
+                <text class="status-text">待接单</text>
+              </view>
+              <view class="route-dot end"></view>
+            </view>
+            <view class="location-wrapper to-wrapper">
+              <text class="location to">{{item.toLocation}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="item-info">
+          <view class="detail-grid">
+            <view class="detail-column">
+              <view class="info-row">
+                <text class="label">报酬</text>
+                <view class="value reward-value">{{item.reward}}</view>
+              </view>
+              <view class="info-row item-type-row">
+                <text class="label">物品</text>
+                <view class="value item-type-container">
+                  <block wx:for="{{item.itemType}}" wx:key="*this" wx:for-item="typeItem">
+                    <text class="item-type">{{typeItem}}</text>
+                  </block>
+                </view>
+              </view>
+              <view class="info-row">
+                <text class="label">期望时间</text>
+                <view class="value time-value">{{item.expectedTime}}</view>
+              </view>
+            </view>
+            <view class="detail-column">
+              <view class="info-row">
+                <text class="label">重量</text>
+                <view class="value weight-value">{{item.weight}}</view>
+              </view>
+              <view class="info-row">
+                <text class="label">尺寸</text>
+                <view class="value size-value">{{item.size}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="item-footer">
+          <view class="publisher">
+            <image class="avatar" src="{{item.publisher.avatar}}"></image>
+            <text class="name">{{item.publisher.name}}</text>
+            <text class="rating">{{item.publisher.rating}}分</text>
+          </view>
+          <text class="publish-time">{{item.publishTime || '刚刚发布'}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 行程信息结果列表 -->
+    <view wx:if="{{searchType === 1 && searchResults.length > 0}}" class="result-list">
+      <view class="list-item" wx:for="{{searchResults}}" wx:key="id" bindtap="onItemTap" data-id="{{item.id}}">
+        <view class="item-header">
+          <view class="route">
+            <view class="location-wrapper from-wrapper">
+              <text class="location from">{{item.fromLocation}}</text>
+            </view>
+            <view class="route-line">
+              <view class="route-line-bg"></view>
+              <view class="route-dot start"></view>
+              <view class="route-status">
+                <text class="status-text">{{item.flightNumber || '航班号'}}</text>
+              </view>
+              <view class="route-dot end"></view>
+            </view>
+            <view class="location-wrapper to-wrapper">
+              <text class="location to">{{item.toLocation}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="item-info">
+          <view class="vertical-grid">
+            <!-- 出发时间 -->
+            <view class="info-row">
+              <text class="label">出发时间</text>
+              <view class="value time-value">{{item.departureTime}}</view>
+            </view>
+            
+            <!-- 捎带价格 -->
+            <view class="info-row">
+              <text class="label">捎带价格</text>
+              <view class="value reward-value">{{item.rewardRequirement}}</view>
+            </view>
+            
+            <!-- 可携带重量 -->
+            <view class="info-row">
+              <text class="label">可携带重量</text>
+              <view class="value weight-value">{{item.availableWeight}}</view>
+            </view>
+            
+            <!-- 可接受物品 -->
+            <view class="info-row">
+              <text class="label">可接受物品</text>
+              <view class="value acceptable-items">
+                <block wx:if="{{item.acceptableItems.length > 0}}">
+                  <text wx:for="{{item.acceptableItems}}" wx:key="*this" wx:for-item="itemType" class="item-tag">{{itemType}}</text>
+                </block>
+                <block wx:else>
+                  <text class="item-tag">不限</text>
+                </block>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="item-footer">
+          <view class="publisher">
+            <image class="avatar" src="{{item.traveler.avatar}}"></image>
+            <text class="name">{{item.traveler.name}}</text>
+            <text class="rating">{{item.traveler.rating}}分</text>
+          </view>
+          <text class="publish-time">{{item.publishTime || '刚刚发布'}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="loading" wx:if="{{loading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && !loading && searchResults.length > 0}}">
+      <text class="no-more-text">没有更多数据了</text>
+      <view class="divider"></view>
+    </view>
+  </view>
+  
+  <!-- 筛选面板 -->
+  <view class="filter-panel {{showFilterPanel ? 'show' : ''}}">
+    <view class="filter-panel-mask" bindtap="hideFilter"></view>
+    <view class="filter-panel-content">
+      <view class="filter-header">
+        <text class="filter-title">高级筛选</text>
+        <view class="filter-close" bindtap="hideFilter">
+          <icon type="clear" size="20" color="#666"></icon>
+        </view>
+      </view>
+      
+      <scroll-view scroll-y class="filter-body">
+        <!-- 地区筛选 -->
+        <view class="filter-section">
+          <view class="section-title">地区</view>
+          <view class="section-content">
+            <view class="filter-item">
+              <view class="filter-label">出发地</view>
+              <picker mode="selector" range="{{locationOptions.china}}" bindchange="onFilterChange" data-field="fromLocation" value="{{filter.fromLocation}}">
+                <view class="picker-value">{{filter.fromLocation || '选择出发地'}}</view>
+              </picker>
+            </view>
+            <view class="filter-item">
+              <view class="filter-label">目的地</view>
+              <picker mode="selector" range="{{locationOptions.ireland}}" bindchange="onFilterChange" data-field="toLocation" value="{{filter.toLocation}}">
+                <view class="picker-value">{{filter.toLocation || '选择目的地'}}</view>
+              </picker>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 时间筛选 -->
+        <view class="filter-section">
+          <view class="section-title">时间</view>
+          <view class="section-content">
+            <view class="filter-item">
+              <view class="filter-label">开始日期</view>
+              <view class="date-picker" bindtap="openDatePicker" data-type="Start">
+                {{filter.departureTimeStart || '不限'}}
+              </view>
+            </view>
+            <view class="filter-item">
+              <view class="filter-label">结束日期</view>
+              <view class="date-picker" bindtap="openDatePicker" data-type="End">
+                {{filter.departureTimeEnd || '不限'}}
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 价格筛选 -->
+        <view class="filter-section">
+          <view class="section-title">价格 (€)</view>
+          <view class="section-content">
+            <view class="price-range">
+              <input type="digit" class="price-input" placeholder="最低价" value="{{filter.minPrice}}" bindinput="onFilterChange" data-field="minPrice" />
+              <text class="price-separator">至</text>
+              <input type="digit" class="price-input" placeholder="最高价" value="{{filter.maxPrice}}" bindinput="onFilterChange" data-field="maxPrice" />
+            </view>
+          </view>
+        </view>
+        
+        <!-- 重量筛选 -->
+        <view class="filter-section">
+          <view class="section-title">重量 (kg)</view>
+          <view class="section-content">
+            <view class="weight-range">
+              <input type="digit" class="weight-input" placeholder="最小重量" value="{{filter.minWeight}}" bindinput="onFilterChange" data-field="minWeight" />
+              <text class="weight-separator">至</text>
+              <input type="digit" class="weight-input" placeholder="最大重量" value="{{filter.maxWeight}}" bindinput="onFilterChange" data-field="maxWeight" />
+            </view>
+          </view>
+        </view>
+        
+        <!-- 物品类型筛选 -->
+        <view class="filter-section">
+          <view class="section-title">物品类型</view>
+          <view class="section-content">
+            <checkbox-group bindchange="onItemTypeChange">
+              <view class="item-type-grid">
+                <view class="item-type-option" wx:for="{{itemTypeOptions}}" wx:key="*this">
+                  <checkbox value="{{item}}" checked="{{filter.itemType.indexOf(item) !== -1}}" />
+                  <text>{{item}}</text>
+                </view>
+              </view>
+            </checkbox-group>
+          </view>
+        </view>
+        
+        <!-- 排序方式 -->
+        <view class="filter-section">
+          <view class="section-title">排序方式</view>
+          <view class="section-content">
+            <radio-group bindchange="onSortChange">
+              <view class="sort-options">
+                <view class="sort-option" wx:for="{{sortOptions}}" wx:key="value">
+                  <radio value="{{item.value}}" checked="{{filter.sortType === item.value}}" />
+                  <text>{{item.text}}</text>
+                </view>
+              </view>
+            </radio-group>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <view class="filter-footer">
+        <button class="filter-reset" bindtap="resetFilter">重置</button>
+        <button class="filter-apply" bindtap="applyFilter">应用</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 日期选择器弹窗 -->
+  <picker-view
+    wx:if="{{showDateStart || showDateEnd}}"
+    indicator-style="height: 50px;"
+    style="width: 100%; height: 300px; position: fixed; bottom: 0; left: 0; background-color: white; z-index: 9999;"
+    value="{{dateValue}}"
+    bindchange="onDateChange">
+    <view class="picker-header">
+      <text class="picker-title">选择日期</text>
+      <view class="picker-actions">
+        <view class="picker-cancel" bindtap="closeDatePicker" data-type="{{showDateStart ? 'Start' : 'End'}}">取消</view>
+        <view class="picker-confirm" bindtap="onDateConfirm" data-type="{{showDateStart ? 'Start' : 'End'}}">确定</view>
+      </view>
+    </view>
+    <picker-view-column>
+      <view style="line-height: 50px; text-align: center;" wx:for="{{years}}" wx:key="*this">{{item}}年</view>
+    </picker-view-column>
+    <picker-view-column>
+      <view style="line-height: 50px; text-align: center;" wx:for="{{months}}" wx:key="*this">{{item}}月</view>
+    </picker-view-column>
+    <picker-view-column>
+      <view style="line-height: 50px; text-align: center;" wx:for="{{days}}" wx:key="*this">{{item}}日</view>
+    </picker-view-column>
+  </picker-view>
+</view> 
